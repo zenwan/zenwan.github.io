@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="为什么是PyTorch"/><meta name="keywords" content="" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2018/09/21/为什么是PyTorch/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>为什么是PyTorch - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">为什么是PyTorch
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-09-21
+        </span><span class="post-category">
+            <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Pytorch简介"><span class="toc-text">Pytorch简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么是PyTorch-人生苦短"><span class="toc-text">为什么是PyTorch? 人生苦短</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tensor"><span class="toc-text">Tensor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#autograd-自动微分"><span class="toc-text">autograd: 自动微分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#神经网络-neural-network"><span class="toc-text">神经网络(neural network)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义网络"><span class="toc-text">定义网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#损失函数"><span class="toc-text">损失函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化器"><span class="toc-text">优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常用数据集"><span class="toc-text">常用数据集</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#小试牛刀-：CIFAR-10分类"><span class="toc-text">小试牛刀 ：CIFAR-10分类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#重新定义网络"><span class="toc-text">重新定义网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#定义损失函数（loss-function-和优化器-optimizer"><span class="toc-text">定义损失函数（loss function)和优化器(optimizer)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练网络"><span class="toc-text">训练网络</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="Pytorch简介"><a href="#Pytorch简介" class="headerlink" title="Pytorch简介"></a>Pytorch简介</h1><p>[TOC]</p>
+<h2 id="为什么是PyTorch-人生苦短"><a href="#为什么是PyTorch-人生苦短" class="headerlink" title="为什么是PyTorch? 人生苦短"></a>为什么是PyTorch? 人生苦短</h2><p>几乎所有的深度学习框架都是基于计算图的，而图又可以分为静态计算图和动态计算图，静态计算图是先定义再运行（define and run),一次定义多次运行，静态图一旦创建则不能修改，如果修改了图的结构，则必须重新开始运行，而动态计算图是在运行的过程中被定义，在运行的时候构建（define by run),可以多次构建多次运行。以静态计算图为代表的深度学习框架是TensorFlow,动态计算图为代表的是PyTorch。下图则展示了PyTorch动态构建计算图的过程。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_gif/gBnm9Pj6T2vmsaIrpZuwMEiasib0Q73j7ibsf3E2SRngotsx12ZtewibRVrt7l2G1tpWI4icaJmK08XdXXavjUVfflQ/0?wx_fmt=gif" alt="dynamic_graph"></p>
+<p>静态图在构建的时候必须把所有可能出现的情况都要包含进去，则也导致了静态图过于庞大，可能占用过高的显存，而且静态图的定义无法使用if、while、for 等常用的python语句，不得不为这些操作专门设计语法。而动态计算图则没有这个问题，它可以使用原生自带的if、while、for等条件语句，最终创建的计算图取决于你执行的条件分支。<br>我们来看下if语句在TensorFlow和Pytorch中两种实现方式。</p>
+<ul>
+<li><p>PyTorch</p>
+<figure class="highlight python"><figcaption><span>&#123;.line-numbers&#125;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch.autograd <span class="keyword">import</span> Variable</span><br><span class="line"></span><br><span class="line">N,D,H =<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span></span><br><span class="line"></span><br><span class="line">X = Variable(torch.randn(N,D))</span><br><span class="line">W1 = Variable(torch.randn(N,H))</span><br><span class="line">W1 = Variable(torch.randn(N,H))</span><br><span class="line"></span><br><span class="line">z = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">y = X.mm(W1) <span class="keyword">if</span> z&gt;<span class="number">0</span> <span class="keyword">else</span> X.mm(W2)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>TensorFlow</p>
+<figure class="highlight python"><figcaption><span>&#123;.line-numbers&#125;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">N,D,H = <span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span></span><br><span class="line">X = tf.placeholder(tf.float32,shape=(N,D))</span><br><span class="line">W1 = tf.placeholder(tf.float32,shape=(D,H))</span><br><span class="line">W2 = tf.placeholder(tf.float32,shape=(D,H))</span><br><span class="line">z = tf.placeholder(tf.float32,shape=<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">f1</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> tf.matmul(X,W1)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">f2</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> tf.matmul(X,W2)</span><br><span class="line">y = tf.cond(tf.less(z,<span class="number">0</span>),f1,f2)</span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    values = &#123;</span><br><span class="line">        X:np.random.randn(N,D),</span><br><span class="line">        z:<span class="number">10</span>,</span><br><span class="line">        W1:np.random.randn(D,H),</span><br><span class="line">        W2:np.random.randn(D,H)</span><br><span class="line">    &#125;</span><br><span class="line">    y_val = sess.run(y,feed_dict=values)</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p>动态计算图可以使我们任意修改前向传播，可以随时查看和修改变量的值，十分灵活，这样的特性带来的另外一个优势是调试更方便，Pytorch中报错的地方，往往就是写错代码的地方，而静态图先构建图（Graph对象，构建图的过程不报错，然后在session.run()的时候报错，这种报错很难定位到源代码中真正出错的地方,更像在操作一个黑箱。</p>
+<p>2017年在PyTorch发布不久后，OpenAI的科学家，Tesla的AI部门主管Andrej Karpathy发了一篇Twitter调侃道:</p>
+<blockquote>
+<p>I’ve been using PyTorch a few months now. I’ve never felt better,I have more energy. My skin is clearer. My eye sight has improved.</p>
+</blockquote>
+<p>人生苦短，我用PyTorch.<br><img src="https://mmbiz.qpic.cn/mmbiz_png/gBnm9Pj6T2vmsaIrpZuwMEiasib0Q73j7ibZFYELLekDENp9JxXUc4ibRicbqicVYEQOwdkqIAuR89udDLUicEKSCbUcw/0?wx_fmt=png" alt="the_real_reason.png"></p>
+<h2 id="Tensor"><a href="#Tensor" class="headerlink" title="Tensor"></a>Tensor</h2><p>Tensor 是PyTorch中一个重要的数据结构，可以认为是一高维数组。它可以是标量（一位数）、向量（一维数组）、矩阵（二维数组）以及更高维的数组。Tensor和numpy的ndarray类似，二者可以互相自由转化。但Tensor可以使用GPU进行加速运算。下面通过几个例子来看下Tensor的基本用法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看PyTorch的版本</span></span><br><span class="line"><span class="keyword">import</span> torch </span><br><span class="line">torch.__version__</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;0.4.1&apos;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建5*3的矩阵</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">x0 = torch.Tensor(<span class="number">5</span>,<span class="number">3</span>)</span><br><span class="line">x0</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  3.0679e-41,  5.7453e-44],</span><br><span class="line">        [ 0.0000e+00,         nan,  0.0000e+00],</span><br><span class="line">        [ 1.3733e-14,  6.4076e+07,  2.0706e-19],</span><br><span class="line">        [ 7.3909e+22,  2.4176e-12,  1.1625e+33],</span><br><span class="line">        [ 8.9605e-01,  1.1632e+33,  5.6003e-02]])</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到torch.Tensor()方法默认生成指定维度的随机浮点数，默认的类型为<code>torch.FloatTensor</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看tensor的大小</span></span><br><span class="line">x0.size()</span><br><span class="line">print(x0.size())</span><br><span class="line">print(<span class="string">"Tensor的行数：&#123;r&#125;，列数：&#123;c&#125;"</span>.format(r=x0.size(<span class="number">0</span>),c=x0.size(<span class="number">1</span>)))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([5, 3])</span><br><span class="line">Tensor的行数：5，列数：3</span><br></pre></td></tr></table></figure>
+
+<p>torch.Size 是tuple对象的子类，因此它支持tuple的所有操作，如x.size()[0]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用[0,1]均匀分布随机初始化Tensor</span></span><br><span class="line">x1 = torch.rand(<span class="number">5</span>,<span class="number">3</span>)</span><br><span class="line">x1</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[0.4395, 0.7811, 0.9241],</span><br><span class="line">        [0.0098, 0.5738, 0.6705],</span><br><span class="line">        [0.9428, 0.7089, 0.1504],</span><br><span class="line">        [0.7572, 0.4142, 0.6234],</span><br><span class="line">        [0.1544, 0.4454, 0.5211]])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加法的三种形式</span></span><br><span class="line">x0+x1</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  7.8115e-01,  9.2413e-01],</span><br><span class="line">        [ 9.7851e-03,         nan,  6.7051e-01],</span><br><span class="line">        [ 9.4281e-01,  6.4076e+07,  1.5038e-01],</span><br><span class="line">        [ 7.3909e+22,  4.1425e-01,  1.1625e+33],</span><br><span class="line">        [ 1.0504e+00,  1.1632e+33,  5.7714e-01]])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0.add(x1)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  7.8115e-01,  9.2413e-01],</span><br><span class="line">        [ 9.7851e-03,         nan,  6.7051e-01],</span><br><span class="line">        [ 9.4281e-01,  6.4076e+07,  1.5038e-01],</span><br><span class="line">        [ 7.3909e+22,  4.1425e-01,  1.1625e+33],</span><br><span class="line">        [ 1.0504e+00,  1.1632e+33,  5.7714e-01]])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定加法结果的输出目标为result</span></span><br><span class="line">result= torch.Tensor(<span class="number">5</span>,<span class="number">3</span>) <span class="comment"># 预先定义变量，分配空间</span></span><br><span class="line">torch.add(x0,x1,out=result) <span class="comment"># 结果保存到result</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  7.8115e-01,  9.2413e-01],</span><br><span class="line">        [ 9.7851e-03,         nan,  6.7051e-01],</span><br><span class="line">        [ 9.4281e-01,  6.4076e+07,  1.5038e-01],</span><br><span class="line">        [ 7.3909e+22,  4.1425e-01,  1.1625e+33],</span><br><span class="line">        [ 1.0504e+00,  1.1632e+33,  5.7714e-01]])</span><br></pre></td></tr></table></figure>
+
+
+
+<p>下面我们看下另外一种写法，函数名后面带下划线<code>_</code> ，这种带下划线的函数会修改Tensor本身的内容。<br>例如x0.add_(x1)会改变x0,而x0.add(x1)则会返回一个新的Tensor，而x0不变。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(x0)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  3.0679e-41,  5.7453e-44],</span><br><span class="line">        [ 0.0000e+00,         nan,  0.0000e+00],</span><br><span class="line">        [ 1.3733e-14,  6.4076e+07,  2.0706e-19],</span><br><span class="line">        [ 7.3909e+22,  2.4176e-12,  1.1625e+33],</span><br><span class="line">        [ 8.9605e-01,  1.1632e+33,  5.6003e-02]])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0.add_(x1)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  7.8115e-01,  9.2413e-01],</span><br><span class="line">        [ 9.7851e-03,         nan,  6.7051e-01],</span><br><span class="line">        [ 9.4281e-01,  6.4076e+07,  1.5038e-01],</span><br><span class="line">        [ 7.3909e+22,  4.1425e-01,  1.1625e+33],</span><br><span class="line">        [ 1.0504e+00,  1.1632e+33,  5.7714e-01]])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-1.2792e+36,  7.8115e-01,  9.2413e-01],</span><br><span class="line">        [ 9.7851e-03,         nan,  6.7051e-01],</span><br><span class="line">        [ 9.4281e-01,  6.4076e+07,  1.5038e-01],</span><br><span class="line">        [ 7.3909e+22,  4.1425e-01,  1.1625e+33],</span><br><span class="line">        [ 1.0504e+00,  1.1632e+33,  5.7714e-01]])</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Tensor和Numpy的数组之间的可以无缝转换，对于Tensor不支持的操作，我们可以先转为Numpy数组，处理后再转回Tensor。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初始化一个全为1的Tensor</span></span><br><span class="line">x2 = torch.ones(<span class="number">5</span>)</span><br><span class="line">x2</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([1., 1., 1., 1., 1.])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Tensor对象 转 numpy 对象</span></span><br><span class="line">x2_np = x2.numpy()</span><br><span class="line">x2_np</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([1., 1., 1., 1., 1.], dtype=float32)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x2.add_(x2)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([2., 2., 2., 2., 2.])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x2_np</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([2., 2., 2., 2., 2.], dtype=float32)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们可以看到x2被修改后，x2_np对象也被修改了，这是因为Tensor和numpy对象共享内存，所以他们之间的转换很快，而且几乎不会消耗什么资源。但其中一个改变了。另外一个也会被修改。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># numpy 对象转 Tensor</span></span><br><span class="line">x3_np = np.array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]])</span><br><span class="line">x3_0 = torch.tensor(x3_np)</span><br><span class="line">x3_1 = torch.from_numpy(x3_np)</span><br></pre></td></tr></table></figure>
+
+<p>x3_0和x3_1 有什么区别？我们先对x3_0和x3_1 进行<code>add_</code>操作，改变对象的值，再看看x3_np 有什么变化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x3_0.add_(<span class="number">1</span>)</span><br><span class="line">print(x3_0,x3_np)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[2, 3, 4]]) [[1 2 3]]</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x3_1.add_(<span class="number">1</span>)</span><br><span class="line">print(x3_1,x3_np)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[2, 3, 4]]) [[2 3 4]]</span><br></pre></td></tr></table></figure>
+
+<p>我们发现，通过torch.tensor()将Numpy对象转成Tensor对象，二者并不共享内存数据，torch.Tensor()总是先将Numpy数据拷贝一份。而torch.form()则直接引用原先Numpy数据。<br>Tensor可以通过cuda方法将CPU数据转化为GPU数据，从而可以使用GPU进行加速运算。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor = tensor.cuda <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> tensor</span><br></pre></td></tr></table></figure>
+
+<h2 id="autograd-自动微分"><a href="#autograd-自动微分" class="headerlink" title="autograd: 自动微分"></a>autograd: 自动微分</h2><p>深度学习的本质是通过反向传播求导来减小误差，而Pytorch的autograd模块实现了此功能。Tensor上的所有操作，autograd都能为他们自动提供微分，避免手动求导的复杂过程。<br>从pytorch 0.4 起，Variable 正式并入 Tensor, 现在还可以使用旧版本的Variable，但Variable(tensor) 其实什么也没做<br>要想使Tensor对象使用autograd功能，只需要设置<code>renor.requries_grad = True</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.from_numpy(np.array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]],dtype=np.float))</span><br><span class="line">x.requires_grad=<span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">y = x.sum()</span><br><span class="line">y.backward()<span class="comment"># 反向传播</span></span><br><span class="line">x.grad <span class="comment"># 计算梯度</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[1., 1., 1., 1.]], dtype=torch.float64)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>$y = {x_1} + {x_2} + {x_3} + {x_4}$，对$x_i$分别求偏导，每个值都是1.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor(10., dtype=torch.float64, grad_fn=&lt;SumBackward0&gt;)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">y = x.sum()</span><br><span class="line">y.backward() <span class="comment"># 反向传播</span></span><br><span class="line">x.grad <span class="comment"># 计算梯度</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[2., 2., 2., 2.]], dtype=torch.float64)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>反向传播的过程是累加的（accumulated）。这意味着每次一次反向传播，梯度都会累加之前的梯度，所有反向传播之前记得把<strong>梯度清零</strong>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以下划线结束的函数是inplace操作，会修改自身的值</span></span><br><span class="line">x.grad.data.zero_()</span><br><span class="line">x.grad</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[0., 0., 0., 0.]], dtype=torch.float64)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y.backward()</span><br><span class="line">x.grad</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[1., 1., 1., 1.]], dtype=torch.float64)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>下面这个例子可能更深刻。求$y = 4\sqrt {(x_1^4 + x_2^4)} $在x=(1,1)处的偏导数。<br><img src="https://upload-images.jianshu.io/upload_images/68960-3ba73b37e1f6f75e.png" alt="image2.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x = torch.ones(<span class="number">2</span>,requires_grad=<span class="literal">True</span>)</span><br><span class="line">z=(<span class="number">4</span>*x*x)</span><br><span class="line">y= z.norm()</span><br><span class="line">y.data.item()</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">5.656854152679443</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y.backward() <span class="comment">#反向传播</span></span><br><span class="line">x.grad <span class="comment"># 求导</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([5.6569, 5.6569])</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们可以看到x.grad也与我们上图计算结果一致。</p>
+<h2 id="神经网络-neural-network"><a href="#神经网络-neural-network" class="headerlink" title="神经网络(neural network)"></a>神经网络(neural network)</h2><p>Autograde 实现了反向传播的功能，但是直接用来实现神经网络还是稍显复杂。torh.nn 是专门为神经网络设计的模块化接口。torch.nn 构建于Autograd之上，可用来定义和运行神经网络。nn.Module是nn种最重要的类，可把它看成是一个网络的封装，包含网络各层定义以及forward方法，调用forward(input)方法，可返回前向传播的结果。下面就以最早的卷积神经网络LeNet为例，来看看如何实现nn.Module实现。LeNet的网络结果如图所示：<br><img src="https://mmbiz.qpic.cn/mmbiz_png/gBnm9Pj6T2vmsaIrpZuwMEiasib0Q73j7ibyegkJuka1bl6muPB23lXjw8taHSRyEtChc4Gjjzsdtfnm5ptlFZMug/0?wx_fmt=png" alt="nn_lenet.png"><br>LeNet-5出自论文Gradient-Based Learning Applied to Document Recognition，是一种用于手写体字符识别的非常高效的卷积神经网络。</p>
+<h3 id="定义网络"><a href="#定义网络" class="headerlink" title="定义网络"></a>定义网络</h3><p>定义网络的时候，需要继承nn.Module，并实现它的forward方法，把网络中具有可学习参数的层放在构造函数<code>__init__</code>中。如果某一层不具有可学习参数（如ReLU层)，则建议不建议放在构造函数中，而是在forward中使用<code>nn.functional</code>代替。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LeNet</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(LeNet,self).__init__()</span><br><span class="line">        <span class="comment"># 卷积层1 输入通道数1（单通道），输出通道数6，卷积核大小5</span></span><br><span class="line">        self.conv1 = nn.Conv2d(in_channels=<span class="number">1</span>,out_channels=<span class="number">6</span>,kernel_size=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#卷积层2 输入通道数6（单通道），输出通道数16，卷积核大小5</span></span><br><span class="line">        self.conv2 = nn.Conv2d(in_channels=<span class="number">6</span>,out_channels=<span class="number">16</span>,kernel_size=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 全连接层,y = Wx + b</span></span><br><span class="line">        self.fc1 = nn.Linear(<span class="number">16</span>*<span class="number">5</span>*<span class="number">5</span>,<span class="number">120</span>)</span><br><span class="line">        self.fc2 = nn.Linear(<span class="number">120</span>,<span class="number">84</span>)</span><br><span class="line">        self.fc3 = nn.Linear(<span class="number">84</span>,<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x)</span>:</span></span><br><span class="line">        <span class="comment"># 卷积层-&gt; 激活层-&gt; 池化层</span></span><br><span class="line">        <span class="comment"># conv2d-&gt; relu-&gt; pool2d</span></span><br><span class="line">        x = F.max_pool2d(input=F.relu(self.conv1(x)),kernel_size=<span class="number">2</span>)</span><br><span class="line">        x = F.max_pool2d(input=F.relu(self.conv2(x)),kernel_size=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># reshape '-1' 表示自适应</span></span><br><span class="line">        x = x.view(x.size()[<span class="number">0</span>],<span class="number">-1</span>)</span><br><span class="line">        x = F.relu(self.fc1(x)) <span class="comment"># 全连接-&gt; 激活</span></span><br><span class="line">        x = F.relu(self.fc2(x)) <span class="comment"># 全连接-&gt; 激活</span></span><br><span class="line">        x = self.fc3(x) <span class="comment">#全连接</span></span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lenet = LeNet()</span><br><span class="line">lenet</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">LeNet(</span><br><span class="line">  (conv1): Conv2d(1, 6, kernel_size=(5, 5), stride=(1, 1))</span><br><span class="line">  (conv2): Conv2d(6, 16, kernel_size=(5, 5), stride=(1, 1))</span><br><span class="line">  (fc1): Linear(in_features=400, out_features=120, bias=True)</span><br><span class="line">  (fc2): Linear(in_features=120, out_features=84, bias=True)</span><br><span class="line">  (fc3): Linear(in_features=84, out_features=10, bias=True)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>只要在nn.Module的子类中定义了forward函数，backward函数就会自动被实现（利用autograd）。在forward函数中可以使用任何tensor支持的函数，还可以使用if、for、log等任何python 支持的语法。<br>网络的参数可以通过lenet.parameters()返回，也可通过lenet.named_parameters()返回参数名和参数值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> name,parameters <span class="keyword">in</span> lenet.named_parameters():</span><br><span class="line">    print(name,<span class="string">':'</span>,parameters.size())</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">conv1.weight : torch.Size([6, 1, 5, 5])</span><br><span class="line">conv1.bias : torch.Size([6])</span><br><span class="line">conv2.weight : torch.Size([16, 6, 5, 5])</span><br><span class="line">conv2.bias : torch.Size([16])</span><br><span class="line">fc1.weight : torch.Size([120, 400])</span><br><span class="line">fc1.bias : torch.Size([120])</span><br><span class="line">fc2.weight : torch.Size([84, 120])</span><br><span class="line">fc2.bias : torch.Size([84])</span><br><span class="line">fc3.weight : torch.Size([10, 84])</span><br><span class="line">fc3.bias : torch.Size([10])</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">input = torch.randn(<span class="number">1</span>,<span class="number">1</span>,<span class="number">32</span>,<span class="number">32</span>)</span><br><span class="line">out = lenet(input)</span><br><span class="line">out</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-0.0417, -0.0039, -0.1051,  0.1119,  0.0675,  0.0071,  0.0435,  0.0524,</span><br><span class="line">         -0.0480, -0.0928]], grad_fn=&lt;ThAddmmBackward&gt;)</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tensor([[[[ 0.8405, -0.9849,  0.2180,  ...,  0.1453, -1.0257,  0.1306],</span><br><span class="line">          [-1.0547,  1.2620, -1.1557,  ...,  0.3912, -0.5614,  0.4352],</span><br><span class="line">          [-1.2492,  0.3228, -1.0925,  ..., -0.2140, -0.4023, -1.5622],</span><br><span class="line">          ...,</span><br><span class="line">          [ 0.4966,  0.4494,  0.2998,  ...,  1.2110, -0.4863, -1.0164],</span><br><span class="line">          [ 0.8932, -1.0220,  0.0874,  ...,  0.8751,  1.7069, -0.6414],</span><br><span class="line">          [ 1.0658,  0.6862,  0.2639,  ...,  1.2042,  0.2181,  0.5975]]]])</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>关于<strong>input</strong></li>
+</ul>
+<blockquote>
+<p>需要注意的是，torch.nn只支持mini-batches，不支持一次只输入一个样本，即一次必须是一个batch。但如果只想输入一个样本，则用  input.unsqueeze(0)将batch_size设为１。例如 nn.Conv2d 输入必须是4维的，形如$nSamples \times nChannels \times Height \times Width$。可将nSample设为1，即$1 \times nChannels \times Height \times Width$。</p>
+</blockquote>
+<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><p><code>nn</code> 实现了神经网络中绝大多数的损失函数，例如<code>nn.MSELoss</code>用来计算均方误差，<code>nn.CrossEntropyLoss</code>用来计算交叉熵损失。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">output = lenet(input)</span><br><span class="line">target = torch.arange(<span class="number">0.0</span>,<span class="number">10.0</span>).view(<span class="number">1</span>,<span class="number">10</span>)</span><br><span class="line">criterion = nn.MSELoss()</span><br><span class="line">loss = criterion(output,target)</span><br><span class="line">loss</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor(28.5375, grad_fn=&lt;MseLossBackward&gt;)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>当调用loss.backward()的时候，该图会动态生成并自动微分，也即会自动计算图中参数(Parameter)的导数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment"># 误差反向传播前先把网络中可学习参数的梯度置零</span></span><br><span class="line">lenet.zero_grad()</span><br><span class="line">print(<span class="string">"误差反向传播前的conv1.bias的梯度"</span>)</span><br><span class="line">print(lenet.conv1.bias.grad)</span><br><span class="line">loss.backward()</span><br><span class="line">print(<span class="string">"误差反向传播后的conv2.bias的梯度"</span>)</span><br><span class="line">print(lenet.conv1.bias.grad)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">误差反向传播前的conv1.bias的梯度</span><br><span class="line">None</span><br><span class="line">误差反向传播后的conv2.bias的梯度</span><br><span class="line">tensor([ 0.0069,  0.0428,  0.1053, -0.1353, -0.0520,  0.0168])</span><br></pre></td></tr></table></figure>
+
+<h2 id="优化器"><a href="#优化器" class="headerlink" title="优化器"></a>优化器</h2><p>在反向传播计算完所有的参数的梯度后，还需要使用优化方法来更新网络的权重和参数，例如随机梯度下降法(SGD)的策略来更新：<br>$$w_i+1 = w_i - lr  \times grad$$<br>代码实现如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">learning_rate = <span class="number">0.01</span></span><br><span class="line"><span class="keyword">for</span> f <span class="keyword">in</span> lenet.parameters():</span><br><span class="line">    f.data.sub_(f.grad.data*learning_rate) <span class="comment"># inplace操作</span></span><br></pre></td></tr></table></figure>
+
+<p>在torch.optime模块中实现了深度学习的绝大多数优化方法，例如RMSEProp、Adam、SGD等。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="comment"># 新建一个参数优化器 ，指定优化的参数、学习率</span></span><br><span class="line">optimizer = optim.SGD(lenet.parameters(),lr=<span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在训练的时候，先将梯度置零</span></span><br><span class="line">optimizer.zero_grad() <span class="comment"># 等价于 lenet.zero_grad()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算损失</span></span><br><span class="line">output = lenet(input)</span><br><span class="line">loss = criterion(output,target)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 误差反向传播</span></span><br><span class="line">loss.backward()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新参数</span></span><br><span class="line">optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<h2 id="常用数据集"><a href="#常用数据集" class="headerlink" title="常用数据集"></a>常用数据集</h2><p>在深度学习中，数据加载和预处理是非常繁琐的，但PyTorch提供了一些可以极大简化和加载数据处理流程的工具。同时，对于常用的数据集，PyTorch也提供了封装好的接口供用户快速调用。这些数据集主要保存在<code>torchvison</code>中。</p>
+<p><code>torchvision</code>实现了常用的图像数据加载功能，例如imagenet、CIFAR10、MNIST等。以及常用的数据转换操作，这极大的方便了数据加载和预处理，并且代码具有可重用性。</p>
+<h1 id="小试牛刀-：CIFAR-10分类"><a href="#小试牛刀-：CIFAR-10分类" class="headerlink" title="小试牛刀 ：CIFAR-10分类"></a>小试牛刀 ：CIFAR-10分类</h1><ul>
+<li>CIFAR-10数据集</li>
+</ul>
+<blockquote>
+<p>该数据集共有60000张彩色图像，它有10个类别: ‘airplane’, ‘automobile’, ‘bird’, ‘cat’, ‘deer’, ‘dog’, ‘frog’, ‘horse’, ‘ship’, ‘truck’。每张图片都是$3\times32\times32$，也即3-通道彩色图片，分辨率为$32\times32$。每类6000张图。这里面有50000张用于训练，构成了5个训练批，每一批10000张图；另外10000用于测试，单独构成一批。测试批的数据里，取自10类中的每一类，每一类随机取1000张。抽剩下的就随机排列组成了训练批。注意一个训练批中的各类图像并不一定数量相同，总的来看训练批，每一类都有5000张图。</p>
+</blockquote>
+<p>![cifar.png]<a href="https://images2018.cnblogs.com/blog/1196151/201712/1196151-20171225161744462-2083152737.png">https://images2018.cnblogs.com/blog/1196151/201712/1196151-20171225161744462-2083152737.png</a>)</p>
+<p>下面我们来实现对CIFAR-10数据集的分类，步骤如下：</p>
+<ol>
+<li>使用torchvision 加载并预处理CIFAR-10数据集</li>
+<li>定义网络</li>
+<li>定义损失函数和优化器</li>
+<li>训练网络并更新网络参数</li>
+<li>测试网络</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torchvision <span class="keyword">as</span> tv</span><br><span class="line"><span class="keyword">import</span> torchvision.transforms <span class="keyword">as</span> transforms</span><br><span class="line"><span class="keyword">from</span> torchvision.transforms <span class="keyword">import</span> ToPILImage</span><br><span class="line">show = ToPILImage() <span class="comment"># 可以将Tensor 转为Image 方便可视化</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定于数据的预处理方法</span></span><br><span class="line">transform = transforms.Compose([</span><br><span class="line">    transforms.ToTensor(),<span class="comment"># 第一步先转化为Tensor</span></span><br><span class="line">    transforms.Normalize((<span class="number">0.5</span>,<span class="number">0.5</span>,<span class="number">0.5</span>),(<span class="number">0.5</span>,<span class="number">0.5</span>,<span class="number">0.5</span>)) , <span class="comment"># 第2步 归一化</span></span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 训练集</span></span><br><span class="line">trainset = tv.datasets.CIFAR10(</span><br><span class="line">    root=<span class="string">"/home/fltsettlement/zenwan/jupyternote/data/"</span>,</span><br><span class="line">    train=<span class="literal">True</span>,</span><br><span class="line">    download=<span class="literal">False</span>,</span><br><span class="line">    transform=transform</span><br><span class="line">)</span><br><span class="line">trainloader = torch.utils.data.DataLoader(</span><br><span class="line">    trainset,</span><br><span class="line">    batch_size =<span class="number">4</span>,</span><br><span class="line">    shuffle = <span class="literal">True</span>,</span><br><span class="line">    num_workers = <span class="number">2</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试集</span></span><br><span class="line">testset = tv.datasets.CIFAR10(</span><br><span class="line">    root=<span class="string">"/home/fltsettlement/zenwan/jupyternote/data/"</span>,</span><br><span class="line">    train=<span class="literal">False</span>,</span><br><span class="line">    download=<span class="literal">False</span>,</span><br><span class="line">    transform=transform</span><br><span class="line">)</span><br><span class="line">testloader = torch.utils.data.DataLoader(</span><br><span class="line">    testset,</span><br><span class="line">    batch_size =<span class="number">4</span>,</span><br><span class="line">    shuffle = <span class="literal">False</span>,</span><br><span class="line">    num_workers = <span class="number">2</span></span><br><span class="line">)</span><br><span class="line">classes = (<span class="string">'plane'</span>, <span class="string">'car'</span>, <span class="string">'bird'</span>, <span class="string">'cat'</span>,<span class="string">'deer'</span>, <span class="string">'dog'</span>, <span class="string">'frog'</span>, <span class="string">'horse'</span>, <span class="string">'ship'</span>, <span class="string">'truck'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>DataSet 是一个数据集，可以按照下标访问，返回形式如(data,label)的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(data,label) = trainset[<span class="number">100</span>]</span><br><span class="line">print(classes[label])</span><br><span class="line"><span class="comment"># (data+1)/2 是为了还原归一化后的数据</span></span><br><span class="line">show((data+<span class="number">1</span>)/<span class="number">2</span>).resize((<span class="number">100</span>,<span class="number">100</span>))</span><br></pre></td></tr></table></figure>
+
+<p>DataLoader是一个可迭代的对象，它将dataset返回的每一条数据拼接成一个batch,并提供多线程加速优化和数据混洗等操作。当程序对DataSet的所有数据遍历完一遍后，相应的DataLoader 也就完成了一遍迭代。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dataiter = iter(trainloader)</span><br><span class="line">images,labels = dataiter.next() <span class="comment"># 返回1batch,共4张图片</span></span><br><span class="line">print(<span class="string">" "</span>.join([classes[labels[j]] <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">4</span>)]))</span><br><span class="line">show(tv.utils.make_grid((images+<span class="number">1</span>)/<span class="number">2</span>)).resize((<span class="number">100</span>*<span class="number">4</span>,<span class="number">100</span>))</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="重新定义网络"><a href="#重新定义网络" class="headerlink" title="重新定义网络"></a>重新定义网络</h2><p>拷贝之前定义的LeNet网络结构，修改第一个卷积层的输入通道数为3，因为CIFAR-10图片为彩色三通道图片。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LeNet</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(LeNet, self).__init__()</span><br><span class="line">        self.conv1 = nn.Conv2d(<span class="number">3</span>, <span class="number">6</span>, <span class="number">5</span>) </span><br><span class="line">        self.conv2 = nn.Conv2d(<span class="number">6</span>, <span class="number">16</span>, <span class="number">5</span>)  </span><br><span class="line">        self.fc1   = nn.Linear(<span class="number">16</span>*<span class="number">5</span>*<span class="number">5</span>, <span class="number">120</span>)  </span><br><span class="line">        self.fc2   = nn.Linear(<span class="number">120</span>, <span class="number">84</span>)</span><br><span class="line">        self.fc3   = nn.Linear(<span class="number">84</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x)</span>:</span> </span><br><span class="line">        x = F.max_pool2d(F.relu(self.conv1(x)), (<span class="number">2</span>, <span class="number">2</span>)) </span><br><span class="line">        x = F.max_pool2d(F.relu(self.conv2(x)), <span class="number">2</span>) </span><br><span class="line">        x = x.view(x.size()[<span class="number">0</span>], <span class="number">-1</span>) </span><br><span class="line">        x = F.relu(self.fc1(x))</span><br><span class="line">        x = F.relu(self.fc2(x))</span><br><span class="line">        x = self.fc3(x)        </span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">lenet = LeNet()</span><br><span class="line">print(lenet)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">LeNet(</span><br><span class="line">  (conv1): Conv2d(3, 6, kernel_size=(5, 5), stride=(1, 1))</span><br><span class="line">  (conv2): Conv2d(6, 16, kernel_size=(5, 5), stride=(1, 1))</span><br><span class="line">  (fc1): Linear(in_features=400, out_features=120, bias=True)</span><br><span class="line">  (fc2): Linear(in_features=120, out_features=84, bias=True)</span><br><span class="line">  (fc3): Linear(in_features=84, out_features=10, bias=True)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h2 id="定义损失函数（loss-function-和优化器-optimizer"><a href="#定义损失函数（loss-function-和优化器-optimizer" class="headerlink" title="定义损失函数（loss function)和优化器(optimizer)"></a>定义损失函数（loss function)和优化器(optimizer)</h2><p>损失函数，又叫目标函数，是编译一个神经网络模型必须的两个参数之一，另外一个必不可少的是优化器。<br>pytorch的优化器都在<code>torch.optim</code>模块中。<br>常用的optimizer有SGD、Adam、Adadelta、Adagrad、Adamax等。<br>我们这里选择SGD(stochastic gradient descent)，即随机梯度下降法，参数<code>lr</code>为学习率，<code>momentum</code>为动量因子，<code>parameters</code>为需要优化的对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">criterion = nn.CrossEntropyLoss() <span class="comment"># 交叉信息熵损失函数</span></span><br><span class="line">optimizer = optim.SGD(lenet.parameters(), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="训练网络"><a href="#训练网络" class="headerlink" title="训练网络"></a>训练网络</h2><p>训练网络的步骤都是类似的，不断执行下面流程：</p>
+<ul>
+<li>输入数据</li>
+<li>前向传播+反向传播</li>
+<li>更新参数</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorboardX <span class="keyword">import</span> SummaryWriter</span><br><span class="line">writer = SummaryWriter(<span class="string">'./logs/chapter2'</span>)</span><br><span class="line">_inputs, _labels = iter(trainloader).__next__()</span><br><span class="line">writer.add_graph(lenet,input_to_model=_inputs)</span><br><span class="line"></span><br><span class="line">torch.set_num_threads(<span class="number">8</span>)</span><br><span class="line">niter=<span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(<span class="number">5</span>):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> enumerate(trainloader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># 输入数据</span></span><br><span class="line">        inputs, labels = data</span><br><span class="line">        <span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">            inputs = inputs.cuda()</span><br><span class="line">            labels = labels.cuda()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 梯度清零</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># forward + backward</span></span><br><span class="line">        outputs = lenet(inputs)</span><br><span class="line">        loss = criterion(outputs, labels.long())</span><br><span class="line">        loss.backward()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 更新参数</span></span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 打印log信息</span></span><br><span class="line">        <span class="comment"># loss 是一个scalar,需要使用loss.item()来获取数值，不能使用loss[0]</span></span><br><span class="line">        running_loss += loss.item()</span><br><span class="line">        writer.add_scalar(<span class="string">'Train/Loss'</span>, loss.item(), niter)</span><br><span class="line">        niter+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">1000</span> == <span class="number">0</span>:  <span class="comment"># 每500个batch打印一下训练状态</span></span><br><span class="line">            print(<span class="string">'[%d, %5d] loss: %.3f'</span> % (epoch , i , running_loss / <span class="number">2000</span>))</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line">            correct = <span class="number">0</span></span><br><span class="line">            total = <span class="number">0</span></span><br><span class="line">            <span class="keyword">for</span> testdata <span class="keyword">in</span> testloader:</span><br><span class="line">                test_imgs,test_labels = testdata</span><br><span class="line">                test_outpus = lenet(test_imgs)</span><br><span class="line">                _, predicted = torch.max(test_outpus,<span class="number">1</span>)</span><br><span class="line">                total += test_labels.size(<span class="number">0</span>)</span><br><span class="line">                correct += (predicted.data.numpy()==test_labels.data.numpy()).sum()</span><br><span class="line">            writer.add_scalar(<span class="string">'Test/Accu'</span>, correct / total, niter)</span><br><span class="line">            print(<span class="string">"acc"</span>,correct*<span class="number">1.0</span> / total)</span><br><span class="line">print(<span class="string">'Finished Training'</span>)</span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[0,     0] loss: 0.001</span><br><span class="line">acc 0.1</span><br><span class="line">[0,  1000] loss: 1.149</span><br><span class="line">acc 0.1551</span><br><span class="line">[0, 12000] loss: 0.736</span><br><span class="line">acc 0.4635</span><br><span class="line">[1, 12000] loss: 0.659</span><br><span class="line">acc 0.5231</span><br><span class="line">[2,     0] loss: 0.001</span><br><span class="line">acc 0.5343</span><br><span class="line">[2, 12000] loss: 0.608</span><br><span class="line">acc 0.5579</span><br><span class="line">[3,     0] loss: 0.001</span><br><span class="line">acc 0.5717</span><br><span class="line">[3, 12000] loss: 0.571</span><br><span class="line">acc 0.5737</span><br><span class="line">[4,     0] loss: 0.000</span><br><span class="line">acc 0.5701</span><br><span class="line">[4, 12000] loss: 0.527</span><br><span class="line">acc 0.6094</span><br><span class="line">Finished Training</span><br></pre></td></tr></table></figure>
+
+<p>经过简单的5轮训练，准确率达0.6，比随机猜测1/10的概率要大很大，看来我们的网络的确学习到了有用信息。</p>
+
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/pytorch/">pytorch</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/05/10/pandas%20%E6%95%B0%E6%8D%AE%E7%A6%BB%E6%95%A3%E5%8C%96/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Pandas数据离散化</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2018/08/15/scala%E5%9F%BA%E7%A1%80_%E7%B1%BB%E5%92%8C%E5%AF%B9%E8%B1%A1/">
+        <span class="next-text nav-default">Scala基础_类和对象</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

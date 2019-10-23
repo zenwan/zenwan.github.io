@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="单例模式"/><meta name="keywords" content="python, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/07/18/单例模式/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>单例模式 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">单例模式
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-07-18
+        </span><span class="post-category">
+            <a href="/categories/python/">python</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Python-单例模式"><span class="toc-text">Python 单例模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Method-1-A-decorator"><span class="toc-text">Method 1: A decorator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Method-2-A-base-class"><span class="toc-text">Method 2: A base class</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Method-3-A-metaclass"><span class="toc-text">Method 3: A metaclass</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="Python-单例模式"><a href="#Python-单例模式" class="headerlink" title="Python 单例模式"></a>Python 单例模式</h1><h2 id="Method-1-A-decorator"><a href="#Method-1-A-decorator" class="headerlink" title="Method 1: A decorator"></a>Method 1: A decorator</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">singleton</span><span class="params">(class_)</span>:</span></span><br><span class="line">    instances = &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getinstance</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> class_ <span class="keyword">not</span> <span class="keyword">in</span> instances:</span><br><span class="line">            instances[class_] = class_(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> instances[class_]</span><br><span class="line">    <span class="keyword">return</span> getinstance</span><br><span class="line"><span class="meta">@singleton</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(BaseClass)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>Pros</p>
+<ul>
+<li>Decorators are additive in a way that is often more intuitive than multiple inheritance.</li>
+</ul>
+<p>Cons</p>
+<ul>
+<li>While objects created using MyClass() would be true singleton objects, MyClass itself is a a function, not a class, so you cannot call class methods from it. Also for <code>m = MyClass(); n = MyClass(); o = type(n)();</code> then <code>m == n &amp;&amp; m != o &amp;&amp; n !=</code></li>
+</ul>
+<h2 id="Method-2-A-base-class"><a href="#Method-2-A-base-class" class="headerlink" title="Method 2: A base class"></a>Method 2: A base class</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span><span class="params">(object)</span>:</span></span><br><span class="line">    _instance = <span class="literal">None</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__new__</span><span class="params">(class_, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> isinstance(class_._instance, class_):</span><br><span class="line">            class_._instance = object.__new__(class_, *args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> class_._instance</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(Singleton, BaseClass)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p><strong>Pros</strong></p>
+<ul>
+<li>It’s a true class</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Multiple inheritance - eugh! <code>__new__</code> could be overwritten during inheritance from a second base class? One has to think more than is necessa</li>
+</ul>
+<h2 id="Method-3-A-metaclass"><a href="#Method-3-A-metaclass" class="headerlink" title="Method 3: A metaclass"></a>Method 3: A <a href="https://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python">metaclass</a></h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span><span class="params">(type)</span>:</span></span><br><span class="line">    _instances = &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(cls, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> cls <span class="keyword">not</span> <span class="keyword">in</span> cls._instances:</span><br><span class="line">            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> cls._instances[cls]</span><br><span class="line"><span class="comment">#Python2</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(BaseClass)</span>:</span></span><br><span class="line">    __metaclass__ = Singleton</span><br><span class="line"><span class="comment">#Python3</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(BaseClass, metaclass=Singleton)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p><strong>pros</strong></p>
+<ul>
+<li>It’s a true class</li>
+<li>Auto-magically covers inheritance</li>
+<li>Uses <code>__metaclass__</code> for its proper purpose (and made me aware of it)</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Are there any?<br>&lt;!–stackedit_data:<br>eyJoaXN0b3J5IjpbLTEwOTI4MDMzMTBdfQ==</li>
+<li>-&gt;</li>
+</ul>
+
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/python/">python</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/07/18/RNN%20%E5%8E%9F%E7%90%86/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">RNN 原理</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/07/17/RNN%20pytorch%E6%BA%90%E7%A0%81/">
+        <span class="next-text nav-default">RNN Pytorch源码</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

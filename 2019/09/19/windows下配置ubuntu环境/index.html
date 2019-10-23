@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="windows下配置ubuntu环境"/><meta name="keywords" content="cs, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/09/19/windows下配置ubuntu环境/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>windows下配置ubuntu环境 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">windows下配置ubuntu环境
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-09-19
+        </span><span class="post-category">
+            <a href="/categories/cs/">cs</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#安装Ubuntu-18-04"><span class="toc-text">安装Ubuntu 18.04</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装terminal"><span class="toc-text">安装terminal</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装-Oh-My-Zsh"><span class="toc-text">安装 Oh My Zsh</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装主题-Powerlevel10k"><span class="toc-text">安装主题 Powerlevel10k</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装字体"><span class="toc-text">安装字体</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#firaCode字体"><span class="toc-text">firaCode字体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nerd-Fonts"><span class="toc-text">Nerd-Fonts</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#效果图"><span class="toc-text">效果图</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="安装Ubuntu-18-04"><a href="#安装Ubuntu-18-04" class="headerlink" title="安装Ubuntu 18.04"></a>安装Ubuntu 18.04</h1><p>在 microsoft store中 安装 ubuntu 18.04</p>
+<h1 id="安装terminal"><a href="#安装terminal" class="headerlink" title="安装terminal"></a>安装terminal</h1><ul>
+<li><p>option1 : 安装terminus</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[https://github.com/eugeny/terminus](https://github.com/eugeny/terminus)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>option2 : 安装windows terminal</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[https://github.com/microsoft/terminal](https://github.com/microsoft/terminal)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="安装-Oh-My-Zsh"><a href="#安装-Oh-My-Zsh" class="headerlink" title="安装 Oh My Zsh"></a>安装 Oh My Zsh</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install zsh</span><br><span class="line">wget --no-check-certificate https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh</span><br><span class="line">chsh -s /bin/zsh`  将默认的shell从bash改为zsh</span><br><span class="line">sudo reboot`  重新启动</span><br></pre></td></tr></table></figure>
+<h1 id="安装主题-Powerlevel10k"><a href="#安装主题-Powerlevel10k" class="headerlink" title="安装主题 Powerlevel10k"></a>安装主题 Powerlevel10k</h1><ul>
+<li>主题的路径在<code>~/.oh-my-zsh/themes</code>, 使某一主题生效的文件为<code>~/.zshrc</code>文件，找到<code>ZSH_THEME=&quot;robbyrussell&quot;</code>一行（大概11行左右），把其注释掉，在下面添一行<code>ZSH_THEME=&quot;Powerlevel10k&quot;</code>，之后关闭终端，再重启就好了。</li>
+<li>注意：在<code>=</code>符号右边一定不要有空格，否则会报错找不到此主题，我就是在这里困了半个多小时。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/romkatv/powerlevel10k.git$ZSH_CUSTOM/themes/powerlevel10k</span><br></pre></td></tr></table></figure>
+Then edit your  <code>~/.zshrc</code>  and set  <code>ZSH_THEME=&quot;powerlevel10k/powerlevel10k&quot;</code>.</li>
+</ul>
+<p>Also add the following:  <code>POWERLEVEL9K_MODE=&quot;awesome-patched&quot;</code></p>
+<h1 id="安装字体"><a href="#安装字体" class="headerlink" title="安装字体"></a>安装字体</h1><p>推荐字体<code>MesloLGS NF</code></p>
+<h2 id="firaCode字体"><a href="#firaCode字体" class="headerlink" title="firaCode字体"></a>firaCode字体</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[https://github.com/tonsky/FiraCode](https://github.com/tonsky/FiraCode)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github-production-release-asset-2e65be.s3.amazonaws.com/27574418/e6cf8f30-35ce-11e8-8e1d-5f1e904d37c5?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20190919%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20190919T095658Z&amp;X-Amz-Expires=300&amp;X-Amz-Signature=4f2d66a2dbf86daa73ab10b81f60f70a66128b4809c422b7c621b23802c02d17&amp;X-Amz-SignedHeaders=host&amp;actor_id=13159809&amp;response-content-disposition=attachment%3B%20filename%3DFiraCode.zip&amp;response-content-type=application%2Foctet-stream</span><br></pre></td></tr></table></figure>
+<h2 id="Nerd-Fonts"><a href="#Nerd-Fonts" class="headerlink" title="Nerd-Fonts"></a>Nerd-Fonts</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[https://www.nerdfonts.com/](https://www.nerdfonts.com/)</span><br></pre></td></tr></table></figure>
+<h1 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h1><p><img src="https://i.postimg.cc/pV11ngxQ/image.png" alt="效果图"></p>
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTExMTg0MDU1MTAsLTg2Njk0Njc5MCwxNj
+QyNjMzNzY4LC03ODMwNDg0ODIsLTk5OTgxMjc4XX0=
+-->
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cs/">cs</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/10/07/window%E4%B8%8B%E7%9A%84%E9%AB%98%E9%80%BC%E6%A0%BC%E7%BB%88%E7%AB%AF%E6%8E%A8%E8%8D%90/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">windows下高逼格终端推荐</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/09/18/LSTM%E4%B8%89%E9%81%93%E9%97%A8/">
+        <span class="next-text nav-default">LSTM三道门</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

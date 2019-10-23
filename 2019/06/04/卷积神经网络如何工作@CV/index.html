@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="卷积神经网络如何工作@CV"/><meta name="keywords" content="cv, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/06/04/卷积神经网络如何工作@CV/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>卷积神经网络如何工作@CV - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">卷积神经网络如何工作@CV
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-06-04
+        </span><span class="post-category">
+            <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#卷积网络输出尺寸"><span class="toc-text">卷积网络输出尺寸</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#卷积神经网络如何工作"><span class="toc-text">卷积神经网络如何工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Multi-Kernels"><span class="toc-text">Multi-Kernels</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LeNet-5"><span class="toc-text">LeNet-5</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#INPUT层-输入层"><span class="toc-text">INPUT层-输入层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C1-卷积层"><span class="toc-text">C1 卷积层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#S2层-池化层（下采样层）"><span class="toc-text">S2层-池化层（下采样层）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C3层-卷积层"><span class="toc-text">C3层-卷积层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#S4层-池化层"><span class="toc-text">S4层(池化层)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#F6层-全连接层"><span class="toc-text">F6层(全连接层)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输出层"><span class="toc-text">输出层</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="卷积网络输出尺寸"><a href="#卷积网络输出尺寸" class="headerlink" title="卷积网络输出尺寸"></a>卷积网络输出尺寸</h2><ul>
+<li>输入图像大小$W*W$</li>
+<li>滤波器Filter大小$F*F$</li>
+<li>步长 $S$</li>
+<li>padding的像素$p$</li>
+</ul>
+<p>于是我们可以得出：<br>$N = (W − F + 2P )/S+1$</p>
+<h2 id="卷积神经网络如何工作"><a href="#卷积神经网络如何工作" class="headerlink" title="卷积神经网络如何工作"></a>卷积神经网络如何工作</h2><p>卷积网络不是一次只关注一个像素，而是接收方形的像素块并将它们传递给滤波器。该滤波器也是比图像本身小的方阵，滤波器的工作就是在像素中找到模式（特征提取）。<br><img src="http://static.zybuluo.com/zenzenzen/b0jnzf3kfc43618l3goc53sg/CV.gif" alt="CV.gif-413.7kB"></p>
+<h2 id="Multi-Kernels"><a href="#Multi-Kernels" class="headerlink" title="Multi-Kernels"></a>Multi-Kernels</h2><p>$batch$张图片，每张图片是RGB三通道的彩色图，图像大小是5×5。</p>
+<p>$$x:[batch,3,5,5]$$</p>
+<p>如果是一个滤波器，滤波器大小为$3×3$，卷积核的厚度对应Feature Maps的通道数,即3。</p>
+<p>$$one kernel:[3,3,3]$$</p>
+<p>如果是一组滤波器（即多个滤波器），滤波器大小为$3×3$，卷积核的厚度对应Feature Maps的通道数,即3，共2组滤波器。</p>
+<p>$$multi kernels:[2,3,3,3]$$</p>
+<p>每个滤波器一个bias,则bias的size:<br>$$bias:2$$</p>
+<p>则输出的size:</p>
+<p>$$N = (W − F + 2P )/S+1 = (5-3+2)/2+1 =3$$</p>
+<p>$$out:[batch,2,3,3]$$</p>
+<h2 id="LeNet-5"><a href="#LeNet-5" class="headerlink" title="LeNet-5"></a>LeNet-5</h2><p><img src="http://static.zybuluo.com/zenzenzen/xc65320lddm10sjolhv30oyp/image_1dcgggjq3q2abujmqrc221obu15.png" alt="image_1dcgggjq3q2abujmqrc221obu15.png-319.5kB"></p>
+<h3 id="INPUT层-输入层"><a href="#INPUT层-输入层" class="headerlink" title="INPUT层-输入层"></a>INPUT层-输入层</h3><ul>
+<li>输入层图像的尺寸为$32×32$</li>
+</ul>
+<h3 id="C1-卷积层"><a href="#C1-卷积层" class="headerlink" title="C1 卷积层"></a>C1 卷积层</h3><ul>
+<li>输入图片：32*32</li>
+<li>卷积核大小：5*5</li>
+<li>卷积核种类：6</li>
+<li>输出featuremap大小：28×28 $（32-5+2×0)/1 + 1=28$</li>
+<li>神经元数量：28×28×6</li>
+<li>训练参数：$5×5×6+6=（5×5+1)×6 $ <blockquote>
+<p>每个滤波器5×5=25个unit参数和一个bias参数，一共6个滤波器</p>
+</blockquote>
+</li>
+<li>连接数：（5×5+1）×6×28×28=122304     <blockquote>
+<p>C1内的每个像素都与输入图像中的5×5个像素和1个bias有连接，所以总共有156×28×28=122304个连接（connection）<br><img src="http://static.zybuluo.com/zenzenzen/myw86j1iztb2mghokrtjxpp1/image_1dcgj3p7k17us30r1gck1rqp1afc2m.png" alt="image_1dcgj3p7k17us30r1gck1rqp1afc2m.png-56.9kB"></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="S2层-池化层（下采样层）"><a href="#S2层-池化层（下采样层）" class="headerlink" title="S2层-池化层（下采样层）"></a>S2层-池化层（下采样层）</h3><ul>
+<li>输入：28*28</li>
+<li>采样区域：2*2</li>
+<li>采样方式：4个输入相加，乘以一个可训练<strong>参数</strong>，再加上一个可训练<strong>偏置</strong>。结果通过sigmoid</li>
+<li>采样种类：6</li>
+<li>输出featureMap大小：14×14（28/2）</li>
+<li>神经元数量：14×14×6</li>
+<li>可训练参数：2×6（和的权+偏置）</li>
+<li>连接数：（2×2+1）×6×14×14</li>
+<li>S2中每个特征图的大小是C1中特征图大小的1/4</li>
+<li>详细说明：第一次卷积之后紧接着就是池化运算，使用 2<em>2核 进行池化，于是得到了S2，6个14</em>14的 特征图（28/2=14）。S2这个pooling层是对C1中的2*2区域内的像素求和乘以一个权值系数再加上一个偏置，然后将这个结果再做一次映射。于是每个池化核有两个训练参数，所以共有2x6=12个训练参数，但是有5x14x14x6=5880个连接。</li>
+</ul>
+<p><img src="http://static.zybuluo.com/zenzenzen/xri3eyayjjmheydb6tki612a/image_1dcgj3bdc6ni1gpvr791dulmbs29.png" alt="image_1dcgj3bdc6ni1gpvr791dulmbs29.png-65.2kB"></p>
+<h3 id="C3层-卷积层"><a href="#C3层-卷积层" class="headerlink" title="C3层-卷积层"></a>C3层-卷积层</h3><ul>
+<li>输入：S2中所有6个或者几个特征map组合</li>
+<li>卷积核大小：5×5</li>
+<li>卷积核种类：16</li>
+<li>输出featureMap大小：10×10 (14-5+1)=10</li>
+</ul>
+<p>C3层由16个10x10的特征图组成，与C1的最大区别是，这里每个特征图中的元素会与S2层中若干个特征图中处于相同位置的5x5的区域相连，如图所示：<br><img src="http://static.zybuluo.com/zenzenzen/9ko8ttnvfkdjlytzd31n347g/image_1dcgj6nn417fk1comqal1u1omrn3j.png" alt="image_1dcgj6nn417fk1comqal1u1omrn3j.png-13kB"><br>而其具体的连接方案如下表所示：<br><img src="http://static.zybuluo.com/zenzenzen/djm1r2hce865vkcqngjwg1q3/lenet_c3.png" alt="lenet_c3.png-90.1kB"><br>具体来说，C3层中首先会将得到的对应的卷积结果相加，然后再进行类似C1层的加偏置的操作，从而得到一个元素。按照上表中的规则连接，C3层一共有$6 \times (3 \times 25 + 1) + 9 \times (4 \times 25 + 1) + 1 \times (6 \times 25 + 1) = 1,516$个可训练的参数，一共有$151,600$个连接。 </p>
+<blockquote>
+<p>另外，值得说的一点是，为什么要采用上面的连接方案，而不是“全”连接？首先，不完全的连接可以减少参数和连接数；其次，我们知道每个特征图对应的就是卷积核从输入中提取出的不同的特征(<strong>特征提取</strong>)，采取这种不对称的连接，可以使本层的特征图对应的不同的更高级的特征。</p>
+</blockquote>
+<h3 id="S4层-池化层"><a href="#S4层-池化层" class="headerlink" title="S4层(池化层)"></a>S4层(池化层)</h3><ul>
+<li>采样方式：4个输入相加，乘以一个可训练<strong>参数</strong>，再加上一个可训练<strong>偏置</strong>。结果通过sigmoid</li>
+<li>滤波器种类：16</li>
+<li>可训练参数：2*16=32<br>S4层是一个池化层，他由16个5x5的特征图构成，其操作和S2层相同。其共有32和可训练的参数和2000个连接。</li>
+</ul>
+<p>###C5层(卷积层)<br>输入：S4层的全部16个单元特征map（与s4全相连）</p>
+<ul>
+<li>卷积核大小：5*5</li>
+<li>卷积核种类：120</li>
+<li>输出featureMap大小：1*1（5-5+1）</li>
+<li>可训练参数/连接：120<em>（16</em>5*5+1）=48120<blockquote>
+<p>C5是一个类似C3的卷积层，由120个1x1的特征图组成。但是，与C3层不同的是，这里的连接是一种“全”连接，即每个特征图中的元素与S4层中每个特征图都连接。<br>一共有120×(5×5×16+1)=48120个可训练的参数。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="F6层-全连接层"><a href="#F6层-全连接层" class="headerlink" title="F6层(全连接层)"></a>F6层(全连接层)</h3><p>F6就是一个简单的全连接层，它由84个神经元构成。和传统的全连接一样每个神经元将C5层中的特征图的值乘上相应的权重并相加，再加上对应的偏置再经过tanh激活函数。<br><img src="http://static.zybuluo.com/zenzenzen/prgulf9svqcd7bxcnm2ncono/image_1dcgk9umqjse40udm71tvgvku7p.png" alt="image_1dcgk9umqjse40udm71tvgvku7p.png-43.4kB"><br>F6层共有84×(120+1)=10,164个可训练的参数。 </p>
+<h3 id="输出层"><a href="#输出层" class="headerlink" title="输出层"></a>输出层</h3><p>输出层由10个欧几里得径向基函数核(Euclidean Radial Basis Function, RBF)构成，每个核对应0-9中的一个类别。输出值最小的那个核对应的i就是这个模型识别出来的数字。</p>
+<ul>
+<li>RBF核的输出</li>
+</ul>
+<p>$$y_i = \sum_j{(x_j - w_{ij})^2}.$$</p>
+<p>其中，$ x_i \in \vec{X} = { x_1, … , x_i, … x_{84} } $，$\vec{X}$ 就是F6层中的神经元的输出组成的向量。 而$w_{ij} \in \vec{w_i} = { w_{i1}, … , w_{ij}, … x_{i84} }$，是数字i对应的RBF核保有的一个常向量。 即，RBF核的输出就是输入向量$\vec{X}$ 和$\vec{w_i}$的欧几里得距离。 </p>
+<blockquote>
+<p>RBF核保有的常向量wi→中的元素是+1或者-1，这些向量被人为设定为可以表示绘制在7x12位图上的字符(0—9)，这也就解释了为什么要将F6层设定为84个神经元。至于为什么要这么设计？主要是为了保证该模型在被拓展应用到识别ASCII码时，该模型可以正确区别例如0和大小写O，这种容易混淆的字符。<br>下图是RBF核保有的常向量对应的bitmap字符： </p>
+</blockquote>
+<p><img src="http://static.zybuluo.com/zenzenzen/bjmqwc4lsgixt27w19l1cfca/image_1dcgkndup1p1r1a581rb7188lv6386.png" alt="image_1dcgkndup1p1r1a581rb7188lv6386.png-117.3kB"></p>
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTEzMTQ1MzQyNzgsLTk1NzQyOTU2NCwtMT
+U1NDkzMzg2NCw1ODUzMjMyNDIsMTA5NjY5NTAzLDg2OTk1MjM3
+MiwxMzY5Mzg1NTEzXX0=
+-->
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/06/05/BatchNormal/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">BatchNormal@CV</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/05/28/%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF/">
+        <span class="next-text nav-default">什么是卷积</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

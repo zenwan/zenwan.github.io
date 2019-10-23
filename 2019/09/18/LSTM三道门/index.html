@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="LSTM三道门"/><meta name="keywords" content="cv, pytorch, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/09/18/LSTM三道门/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>LSTM三道门 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">LSTM三道门
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-09-18
+        </span><span class="post-category">
+            <a href="/categories/deeplearning/">deeplearning</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#LSTM原理"><span class="toc-text">LSTM原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#结构图"><span class="toc-text">结构图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#公式（三道门）"><span class="toc-text">公式（三道门）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LSTM设计初衷："><span class="toc-text">LSTM设计初衷：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#遗忘门"><span class="toc-text">遗忘门</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输入门"><span class="toc-text">输入门</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输出门"><span class="toc-text">输出门</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="LSTM原理"><a href="#LSTM原理" class="headerlink" title="LSTM原理"></a>LSTM原理</h1><h2 id="结构图"><a href="#结构图" class="headerlink" title="结构图"></a>结构图</h2><p><img src="https://img-blog.csdnimg.cn/20181205225311472.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzE2OTQ5NzA3,size_16,color_FFFFFF,t_70" alt="结构图"></p>
+<h2 id="公式（三道门）"><a href="#公式（三道门）" class="headerlink" title="公式（三道门）"></a>公式（三道门）</h2><h3 id="LSTM设计初衷："><a href="#LSTM设计初衷：" class="headerlink" title="LSTM设计初衷："></a>LSTM设计初衷：</h3><p>下图是RNN的抽象结构单元<br><img src="https://i.postimg.cc/y8Np3hy4/image.png" alt="RNN"></p>
+<p>与传统RNN相比 ，LSTM 增加了三道门，分别用来控制信息的输出量。</p>
+<ul>
+<li>对于历史状态: $[{H_{t - 1}}]$ 加一道门，用来控制历史状态信息量，决定丢弃多少信息，${\sigma =1}$ 表示全部保留，${\sigma}=0$表示全部遗忘，我们称为遗忘门。</li>
+<li>对于输入信息$X_{t-1}$,我们也希望有一道门来控制其输入量，我们称为<code>输入门</code> ，输入门决定历史状态的更新。</li>
+<li>对于$t$时刻的输出信息，我们也希望有一道门来控制其输出大小，我们称为<code>输出门</code>。</li>
+</ul>
+<p>于是就有了，下图是LSTM的抽象结构单元,有$\sigma$的地方就是一个门,<br>$\sigma$取值0~1.<br><img src="https://i.postimg.cc/5thsrhdb/image.png" alt="lstm"></p>
+<h3 id="遗忘门"><a href="#遗忘门" class="headerlink" title="遗忘门"></a>遗忘门</h3><p>遗忘门，决定哪些东西被遗忘<br>$f$ 就是forget的意思。<br><img src="https://img-blog.csdnimg.cn/20181205230526552.png" alt="遗忘门"></p>
+<h3 id="输入门"><a href="#输入门" class="headerlink" title="输入门"></a>输入门</h3><p>输入门 ，决定状态$C_t$的更新<br>$i$就是input的意思。<br><img src="https://img-blog.csdnimg.cn/20181205225815769.png" alt="输入门"><br>$C_t$​状态更新，与遗忘门和输入门有关<br>$\tilde{C}<em>{t}$ 不会完全参与到$C_t$的更新中，因为有<strong>输入门</strong>控制。<br>${C}</em>{t-1}$ 也不会完全参与到$C_t$的更新中，因为有<strong>遗忘门</strong>控制。<br><img src="https://img-blog.csdnimg.cn/20181206103646174.png" alt="状态更新"></p>
+<h3 id="输出门"><a href="#输出门" class="headerlink" title="输出门"></a>输出门</h3><p>输出门，决定$t$时刻的输出：<br>其中，$h_{t-1}$ 为为上个时间节点$t-1$时刻的输出，输出的维度可以设定.<br>例如pytorch中:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rnn = nn.LSTM(<span class="number">10</span>, <span class="number">20</span>, <span class="number">2</span>) <span class="comment">#(input_size,hidden_size,num_layers)</span></span><br></pre></td></tr></table></figure>
+<p>hidden_size的维度，其实就是设定的hhh的维度，并且每一个时间节点t，都会有一个输出.<br><img src="https://img-blog.csdnimg.cn/20181205225905523.png" alt="输出门"><br>下图给出了对于每个门的输入和输出。<br><img src="https://i.postimg.cc/J4TcvG9R/image.png" alt="lstm flow"><br>下图说明了每个门的作用。<br><img src="https://i.postimg.cc/9FNZ1s7M/image.png" alt="enter image description here"></p>
+<ul>
+<li><p>$h_{t}$ and $C_t$关系</p>
+<p>$${h_t} = {o_t} \cdot \tanh \left(  \right)$$</p>
+</li>
+</ul>
+<p>$h_t$经过了三道门，$C_t$是经过了两道门。</p>
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTExODgzODkwODIsMTY0OTEwMjYyM119
+-->
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            <a href="/tags/pytorch/">pytorch</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/09/19/windows%E4%B8%8B%E9%85%8D%E7%BD%AEubuntu%E7%8E%AF%E5%A2%83/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">windows下配置ubuntu环境</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/09/10/RNN%E5%8E%9F%E7%90%862/">
+        <span class="next-text nav-default">RNN原理2</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

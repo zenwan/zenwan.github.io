@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="ResNet@CV"/><meta name="keywords" content="cv, pytorch, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/07/09/ResNet/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>ResNet@CV - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">ResNet@CV
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-07-09
+        </span><span class="post-category">
+            <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#深度残差网络-ResNet"><span class="toc-text">深度残差网络(ResNet)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#深度网络的退化问题"><span class="toc-text">深度网络的退化问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#残差学习"><span class="toc-text">残差学习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ResNet网络结构"><span class="toc-text">ResNet网络结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#两种ResNet设计"><span class="toc-text">两种ResNet设计</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="深度残差网络-ResNet"><a href="#深度残差网络-ResNet" class="headerlink" title="深度残差网络(ResNet)"></a>深度残差网络(ResNet)</h2><h3 id="深度网络的退化问题"><a href="#深度网络的退化问题" class="headerlink" title="深度网络的退化问题"></a>深度网络的退化问题</h3><p>对于传统的深度学习网络应用来说，我们都有这样的一直觉，那就是网络越深能学到的东西越多，性能越好。到了2014年的时候，网络深度已经到了22层。<br>并不一定总是这样。在加深网络层数的过程中是会观测到一些出乎意料的现象。例如在CIFAR-10项目上使用56层的 $3 \times 3 $ 的卷积核的网络时候，实验发现深度网络出现了退化问题（Degradation problem)，其错误率无论在测试集还是在训练集上，都高于20层的卷积网络，这意味着深层网络反而泛化能力低于浅层网络，通常来说，为了让网络学到更多的东西，是可以通过增加网络深度来让网络学习到更高维的特征，但眼前的事实比预期糟糕很多。这种现象并不是过拟合，因为其在训练集表现也比浅层网络差。网络深度越深，很容易出现梯度消失和梯度爆炸的问题，一般更容易出现梯度消失的问题。<br>随着网络的深度增加，误差在反向传播的过程中，梯度会进行层层叠加相乘，一个小于1的数（或者大于1）在经过几十层的指数叠加后很小（很大）。0.8的150次方约为 $2.9 \times 10^{-15}$。<br><img src="https://pic2.zhimg.com/v2-dcf5688dad675cbe8fb8be243af5e1fd_r.jpg" alt="preview"></p>
+<blockquote>
+<p>臭名昭著的梯度消失和梯度爆炸问题已经通过提出的标准初始化(如 Xavier, Msra)和中间层标准化(BN)解决. 退化问题也不是由过拟合造成, 因为在训练集上, 深层网络的性能就不如浅层网络.</p>
+</blockquote>
+<p>退化问题表明并非所有系统都同样易于优化, 推测退化问题可能是由于深度传统卷积网络的收敛速度可能呈指数级低, 当前的计算能力没法等到它收敛</p>
+<h2 id="残差学习"><a href="#残差学习" class="headerlink" title="残差学习"></a>残差学习</h2><p>深度网络的退化问题至少说明深度网络不容易训练。但是我们考虑这样一个事实：现在你有一个浅层网络，你想通过向上堆积新层来建立深层网络，一个极端情况是这些增加的层什么也不学习，仅仅复制浅层网络的特征，即这样新层是恒等映射（Identity mapping）。在这种情况下，深层网络应该至少和浅层网络性能一样，也不应该出现退化现象。好吧，你不得不承认肯定是目前的训练方法有问题，才使得深层网络很难去找到一个好的参数。</p>
+<p>让我们先思考一个问题：对神经网络模型添加新的层，充分训练后的模型是否只可能更有效地降低训练误差？理论上，原模型解的空间只是新模型解的空间的子空间。<br>也就是说，如果我们能将新添加的层训练成恒等映射$f(x)=x$，新模型和原模型将同样有效。</p>
+<p>让我们聚焦于神经网络局部。如图所示，设输入为$\boldsymbol{x}$。假设我们希望学出的理想映射为$f(\boldsymbol{x})$，从而作为图上方激活函数的输入。左图虚线框中的部分需要直接拟合出该映射$f(\boldsymbol{x})$，而右图虚线框中的部分则需要拟合出有关恒等映射的残差映射$f(\boldsymbol{x})-\boldsymbol{x}$。残差映射在实际中往往更容易优化。以本节开头提到的恒等映射作为我们希望学出的理想映射$f(\boldsymbol{x})$。我们只需将图5.9中右图虚线框内上方的加权运算（如仿射）的权重和偏差参数学成$0$，那么 $f(\boldsymbol{x})$ 即为恒等映射。实际中，当理想映射 $f(\boldsymbol{x})$ 极接近于恒等映射时，残差映射也易于捕捉恒等映射的细微波动。右图也是ResNet的基础块，即残差块（residual block）。在残差块中，输入可通过跨层的数据线路更快地向前传播。</p>
+<p>本来一个由2层网络组成的映射关系,可以用称之为$f(x)$的这样一个期望函数来拟合，而现在我们期望用$h(x)=f(x)+x$来拟合, 其中只需要学习残差$f(x)$。<strong>当残差为0时，此时堆积层仅仅做了恒等映射，至少网络性能不会下降，实际上残差不会为0，这也会使得堆积层在输入特征基础上学习到新的特征，从而拥有更好的性能。</strong></p>
+<p><img src="http://zh.gluon.ai/_images/residual-block.svg" alt=""></p>
+<p>ResNet沿用了VGG全 $3\times 3$卷积层的设计。残差块里首先有2个有相同输出通道数的 $3\times 3$卷积层。每个卷积层后接一个批量归一化层和ReLU激活函数。然后我们将输入跳过这两个卷积运算后直接加在最后的ReLU激活函数前。这样的设计要求两个卷积层的输出与输入形状一样，从而可以相加。如果想改变通道数，就需要引入一个额外的 $1\times 1$卷积层来将输入变换成需要的形状后再做相加运算。</p>
+<p>残差学习的结构如图所示。这有点类似与电路中的“短路”，所以是一种短路连接（shortcut connection）。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-252e6d9979a2a91c2d3033b9b73eb69f_hd.jpg" alt=""></p>
+<p>为什么残差学习相对更容易，从直观上看残差学习需要学习的内容少，因为残差一般会比较小，学习难度小点。不过我们可以从数学的角度来分析这个问题，首先残差单元可以表示为：<br>$$ y_{l}=h\left(x_{l}\right)+F\left(x_{l}, W_{l}\right) $$<br>$$x_{l+1}=f\left(y_{l}\right) $$</p>
+<p>其中$x_l$和$x_{l+1}$ 分别表示的是第 $l$个残差单元的输入和输出，注意每个残差单元一般包含多层结构。 $F$是残差函数，表示学习到的残差，而 $h(x_l)=x_l$ 表示恒等映射，$f$是ReLU激活函数。基于上式，我们求得从浅层 $l$到深层 $L$的学习特征为：<br>$$x_{L}=x_{l}+\sum_{i=l}^{L-1} F\left(x_{i}, W_{i}\right)$$<br>利用链式规则，可以求得反向过程的梯度：<br>$$\frac{\partial l o s s}{\partial x_{l}}=\frac{\partial \operatorname{loss}}{\partial x_{L}} \cdot \frac{\partial x_{L}}{\partial x_{l}}=\frac{\partial \operatorname{loss}}{\partial x_{L}} \cdot\left(1+\frac{\partial}{\partial x_{L}} \sum_{i=l}^{L-1} F\left(x_{i}, W_{i}\right)\right)$$<br>式子的第一个因子  $\frac{\partial \log s}{\partial x_{L}}$表示的损失函数到达 $L$的梯度，小括号中的1表明短路机制可以无损地传播梯度，而另外一项残差梯度则需要经过带有weights的层，梯度不是直接传递过来的。残差梯度不会那么巧全为-1，而且就算其比较小，有1的存在也不会导致梯度消失。所以残差学习会更容易。要注意上面的推导并不是严格的证明。<br>得注意的地方，后面这项$$ 1+\frac{\partial \sum_{i=1}^{L-1} F\left(x_{i}\right)}{\partial x_{l}} $$它可以使得$\frac{\partial \operatorname{loss}}{\partial x_{L}}$ 到 $\frac{\partial \operatorname{loss}}{\partial x_{l}}$是一个线性叠加的过程而非连乘，所以它自然也不太可能出现梯度消失现象。这些就是从数学推导层面来解释为什么深度残差网络的深度可以允许那么深，并且还没有出现令人恐惧的梯度消失问题和训练效率问题。</p>
+<h2 id="ResNet网络结构"><a href="#ResNet网络结构" class="headerlink" title="ResNet网络结构"></a>ResNet网络结构</h2><p>为了保证element-wise 运算：<br>$$ y_{l}=h\left(x_{l}\right)+F\left(x_{l}, W_{l}\right) $$<br>必须保证恒等映射的$x$维度和残差函数$F(x)$的输出维度必须一致(不能出现维度衰减、通道衰减等)。</p>
+<p>下图为VGGNet-19，以及一个34层深的普通卷积神经网络，和34层深的ResNet网络的对比图，传统的卷积层或全连接层在信息传递时，或多或少会存在信息丢失、损耗(本质是下采样)等问题。ResNet在某种程度上解决了这个问题，通过直接将输入信息绕道传到输出，保护信息的完整性，整个网络则只需要学习输入、输出差别的那一部分，简化学习目标和难度。<br><img src="https://img-blog.csdn.net/20180616153405912?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTM4NDExOTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""><br>通过实现挂出，在plain net上观察到明显的退化现象，而ResNet上不仅没有退化，34层网络的效果反而比18层的更好，而且收敛速度更快。<br><img src="https://img-blog.csdn.net/20180616153436933?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTM4NDExOTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""><br>模型结构图中，我们可以清楚的”实线“和”虚线“两种连接方式，<br>1）实线的的Connection部分都是$3x3x64$的特征图，他们的channel个数一致，所以采用计算方式：<br>$$H(x)=F(x)+x$$<br>2）虚线的的Connection部分分别是$3x3x64$和$3x3x128$的特征图，他们的channel个数不同(64和128)，所以采用计算方式：<br>$$H(x)=F(x)+Wx$$<br>其中$W$是卷积操作，用来调整x的channel维度的。</p>
+<blockquote>
+<p>虚线残差连接为残差块输入输出维度不同. 当维度相同时, 使用恒等映射; 当输出维度升高(stride=2)时, 使用 zero-padding(使用全0填充缺少的维度, 然后concat低维数据从而升到高纬度) 或者 projection shortut(通过 1×1 卷积升维), 使用 projection shortut 效果略好一点点。</p>
+</blockquote>
+<h3 id="两种ResNet设计"><a href="#两种ResNet设计" class="headerlink" title="两种ResNet设计"></a>两种ResNet设计</h3><p>在ResNet的论文中，除了两层的残差学习单元，还有三层的残差学习单元。两层的残差学习单元中包含两个相同输出通道数（因为残差等于目标输出减去输入，即$H(x) - x$，因此输入、输出维度需保持一致）的$3 \times 3$卷积；而3层的残差网络则使用了$1 \times 1$卷积，并且是在中间$3 \times 3$的卷积前后都使用了$1 \times 1$的卷积，有先降维再升维的操作。另外，如果有输入、输出维度不同的情况，我们可以对$x$做一个线性映射变换维度，再连接到后面的层。</p>
+<p><img src="https://i.postimg.cc/sX8YPpcB/image.png" alt="enter image description here"><br>这两种结构分别针对ResNet34（左图）和ResNet50/101/152（右图），一般称整个结构为一个”building block“。其中右图又称为”bottleneck design”，目的一目了然，就是为了降低参数的数目，第一个1x1的卷积把256维channel降到64维，然后在最后通过1x1卷积恢复，整体上用的参数数目：1x1x256x64 + 3x3x64x64 + 1x1x64x256 = 69632，而不使用bottleneck的话就是两个3x3x256的卷积，参数数目: 3x3x256x256x2 = 1179648，差了16.94倍。<br>对于常规ResNet，可以用于34层或者更少的网络中，对于Bottleneck Design的ResNet通常用于更深的如101这样的网络中，目的是减少计算和参数量（实用目的）。<br><img src="https://i.loli.net/2019/07/09/5d2450bf2c54f39545.png" alt="resnet"></p>
+
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            <a href="/tags/pytorch/">pytorch</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/07/11/pytorch%20%E5%AE%9E%E7%8E%B0%20LeNet5/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">LeNet5实战CIFAR10</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/06/05/BatchNormal/">
+        <span class="next-text nav-default">BatchNormal@CV</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="ResNet实战CIFAR10"/><meta name="keywords" content="cv, pytorch, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/07/11/ResNet实战CIFAR10/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>ResNet实战CIFAR10 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">ResNet实战CIFAR10
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-07-11
+        </span><span class="post-category">
+            <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#构建参差模块"><span class="toc-text">构建参差模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ResNet18"><span class="toc-text">ResNet18</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战CIFAR10"><span class="toc-text">实战CIFAR10</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="构建参差模块"><a href="#构建参差模块" class="headerlink" title="构建参差模块"></a>构建参差模块</h2><p><img src="https://i.postimg.cc/sX8YPpcB/image.png" alt=""></p>
+<ul>
+<li>残差单元，主要包括残差拟合和shortcut connetion 两个结构。<ul>
+<li>stride=2 ，减少计算量，本文只是实现ResNet的原理，不考虑工程上的实现细节。</li>
+<li>extra作用: 保证$f(x)+x$ 能element wise add.</li>
+<li>cifar10 数据: 3通道、数据大小为$32 \times 32$</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch  </span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn  </span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> optim  </span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader  </span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms  </span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> datasets  </span><br><span class="line"><span class="keyword">from</span> torch.nn <span class="keyword">import</span> functional <span class="keyword">as</span> F  </span><br><span class="line">  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ResBlock</span><span class="params">(nn.Module)</span>:</span>  </span><br><span class="line">  <span class="string">"""  </span></span><br><span class="line"><span class="string"> resnet block </span></span><br><span class="line"><span class="string"> """</span>  </span><br><span class="line"> <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,inputChannels,outputChannels,stride=<span class="number">2</span>)</span>:</span>  </span><br><span class="line">		super(ResBlock,self).__init__()  </span><br><span class="line">        self.conv1 = nn.Conv2d(in_channels=inputChannels,out_channels=outputChannels,kernel_size=<span class="number">3</span>,stride=stride,padding=<span class="number">1</span>)  </span><br><span class="line">        self.bn1 = nn.BatchNorm2d(outputChannels)  </span><br><span class="line">        self.conv2 = nn.Conv2d(in_channels=outputChannels,out_channels=outputChannels,kernel_size=<span class="number">3</span>,stride=<span class="number">1</span>,padding=<span class="number">1</span>)  </span><br><span class="line">        self.bn2 = nn.BatchNorm2d(outputChannels)  </span><br><span class="line">        self.extra = nn.Sequential()  </span><br><span class="line">        <span class="keyword">if</span> inputChannels != outputChannels:  </span><br><span class="line">		  <span class="comment"># [b,ch_in,h,w]=&gt; [b,ch_out,h,w]  </span></span><br><span class="line">		self.extra = nn.Sequential(  </span><br><span class="line">nn.Conv2d(inputChannels,outputChannels,kernel_size=<span class="number">1</span>,stride=stride),nn.BatchNorm2d(outputChannels)  </span><br><span class="line">            )  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x)</span>:</span>  </span><br><span class="line">		out = F.relu(self.bn1(self.conv1(x)))  </span><br><span class="line">        out = self.bn2(self.conv2(out))  </span><br><span class="line">        out = self.extra(x) + out  </span><br><span class="line">        <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
+
+<h2 id="ResNet18"><a href="#ResNet18" class="headerlink" title="ResNet18"></a>ResNet18</h2>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ResNet18</span><span class="params">(nn.Module)</span>:</span>  </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span>  </span><br><span class="line">  super(ResNet18,self).__init__()  </span><br><span class="line">      self.conv1 = nn.Sequential(  </span><br><span class="line">          nn.Conv2d(<span class="number">3</span>,<span class="number">64</span>,kernel_size=<span class="number">3</span>,stride=<span class="number">1</span>,padding=<span class="number">1</span>),  </span><br><span class="line">          nn.BatchNorm2d(<span class="number">64</span>)  </span><br><span class="line">      )  </span><br><span class="line"></span><br><span class="line">      <span class="comment"># followed 4 blocks  </span></span><br><span class="line">  self.block1 = ResBlock(<span class="number">64</span>,<span class="number">128</span>,stride=<span class="number">2</span>)  </span><br><span class="line">      self.block2 = ResBlock(<span class="number">128</span>,<span class="number">256</span>,stride=<span class="number">2</span>)  </span><br><span class="line">      self.block3 = ResBlock(<span class="number">256</span>,<span class="number">512</span>,stride=<span class="number">2</span>)  </span><br><span class="line">      self.block4 = ResBlock(<span class="number">512</span>,<span class="number">512</span>,stride=<span class="number">1</span>)  </span><br><span class="line">      self.outlayer = nn.Linear(<span class="number">512</span>,<span class="number">10</span>)  </span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self,x)</span>:</span>  </span><br><span class="line">  x = F.relu(self.conv1(x))  </span><br><span class="line">      x = self.block1(x)  </span><br><span class="line">      x = self.block2(x)  </span><br><span class="line">      x = self.block3(x)  </span><br><span class="line">      x = self.block4(x)  </span><br><span class="line">      x = F.adaptive_avg_pool2d(x,[<span class="number">1</span>,<span class="number">1</span>])  </span><br><span class="line">      x = x.view(x.size(<span class="number">0</span>),<span class="number">-1</span>)  </span><br><span class="line">      x = self.outlayer(x)  </span><br><span class="line">      <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+
+<h2 id="实战CIFAR10"><a href="#实战CIFAR10" class="headerlink" title="实战CIFAR10"></a>实战CIFAR10</h2>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">      </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span>  </span><br><span class="line">  batch_size = <span class="number">32</span>  </span><br><span class="line">  cifar_train = datasets.CIFAR10(<span class="string">'./data/cifar10'</span>,  </span><br><span class="line">                             train=<span class="literal">True</span>,  </span><br><span class="line">                             transform=transforms.Compose(  </span><br><span class="line">                                 [  </span><br><span class="line">                                     transforms.Resize((<span class="number">32</span>,<span class="number">32</span>)),  </span><br><span class="line">                                     transforms.ToTensor()  </span><br><span class="line">                                 ]  </span><br><span class="line">                             ),  </span><br><span class="line">                             download=<span class="literal">True</span>)  </span><br><span class="line">    cifar_train = DataLoader(cifar_train,batch_size=batch_size,shuffle=<span class="literal">True</span>)  </span><br><span class="line">  </span><br><span class="line">    cifar_test = datasets.CIFAR10(<span class="string">'./data/cifar10'</span>,  </span><br><span class="line">                                   train=<span class="literal">False</span>,  </span><br><span class="line">                                   transform=transforms.Compose(  </span><br><span class="line">                                       [  </span><br><span class="line">                                           transforms.Resize((<span class="number">32</span>, <span class="number">32</span>)),  </span><br><span class="line">                                           transforms.ToTensor()  </span><br><span class="line">                                       ]  </span><br><span class="line">                                   ),  </span><br><span class="line">                                   download=<span class="literal">True</span>)  </span><br><span class="line">    cifar_test = DataLoader(cifar_test, batch_size=batch_size, shuffle=<span class="literal">False</span> )  </span><br><span class="line">  </span><br><span class="line">    model = ResNet18()  </span><br><span class="line">    print(model)  </span><br><span class="line">    optiminzer = optim.Adam(model.parameters(),lr=<span class="number">1e-3</span>)  </span><br><span class="line">    criteon = nn.CrossEntropyLoss()  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> range(<span class="number">20</span>):  </span><br><span class="line">  model.train()  </span><br><span class="line">        <span class="keyword">for</span> batchidx ,(x,label) <span class="keyword">in</span> enumerate(cifar_train):  </span><br><span class="line">  logits = model(x)  </span><br><span class="line">            loss = criteon(logits,label)  </span><br><span class="line">            <span class="comment"># backprop  </span></span><br><span class="line">  optiminzer.zero_grad()  </span><br><span class="line">            loss.backward()  </span><br><span class="line">            optiminzer.step()  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">#  </span></span><br><span class="line">  print(<span class="string">"loss:"</span>,epoch, loss.item())  </span><br><span class="line">  </span><br><span class="line">        <span class="comment"># test  </span></span><br><span class="line">  model.eval()  </span><br><span class="line">        <span class="keyword">with</span> torch.no_grad(): <span class="comment"># 测试阶段不需要计算梯度  </span></span><br><span class="line">  total_correct = <span class="number">0</span>  </span><br><span class="line">  total_num = <span class="number">0</span>  </span><br><span class="line">  <span class="keyword">for</span> x, label <span class="keyword">in</span> cifar_test:  </span><br><span class="line">  logits = model(x)  </span><br><span class="line">                pred = logits.argmax(dim=<span class="number">1</span>)  </span><br><span class="line">                total_correct += torch.eq(pred,label).float().sum().item()  </span><br><span class="line">                total_num += x.size(<span class="number">0</span>)  </span><br><span class="line">            acc = total_correct / total_num  </span><br><span class="line">            print(<span class="string">"acc"</span>,epoch,acc)</span><br></pre></td></tr></table></figure>
+
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTQ0MDgyMjY5OSwtODA3NTU2NzkzLC0zNj
+k3NDgxNjIsMTY1Njg1OTUxMF19
+-->
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            <a href="/tags/pytorch/">pytorch</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/07/17/RNN%20pytorch%E6%BA%90%E7%A0%81/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">RNN Pytorch源码</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/07/11/pytorch%20%E5%AE%9E%E7%8E%B0%20LeNet5/">
+        <span class="next-text nav-default">LeNet5实战CIFAR10</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

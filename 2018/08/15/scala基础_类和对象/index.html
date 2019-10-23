@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Scala基础_类和对象"/><meta name="keywords" content="Scala, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2018/08/15/scala基础_类和对象/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Scala基础_类和对象 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Scala基础_类和对象
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-08-15
+        </span><span class="post-category">
+            <a href="/categories/Scala/">Scala</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#类和对象"><span class="toc-text">类和对象</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#本章内容"><span class="toc-text">本章内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-类、字段、方法"><span class="toc-text">4.1 类、字段、方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于分号"><span class="toc-text">关于分号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单例对象"><span class="toc-text">单例对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#App特质"><span class="toc-text">App特质</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="类和对象"><a href="#类和对象" class="headerlink" title="类和对象"></a>类和对象</h1><h2 id="本章内容"><a href="#本章内容" class="headerlink" title="本章内容"></a>本章内容</h2><ul>
+<li>类、字段、方法</li>
+<li>单例对象</li>
+</ul>
+<h2 id="4-1-类、字段、方法"><a href="#4-1-类、字段、方法" class="headerlink" title="4.1 类、字段、方法"></a>4.1 类、字段、方法</h2><p>一旦你定义好一个类，就可以用new关键字来定义来创建对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChecksumAccumulator</span> </span>&#123;</span><br><span class="line">    <span class="comment">//类的定义</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">new</span> ChecksumAccumulator</span><br></pre></td></tr></table></figure>
+
+
+<p>类的定义中，包含成员变量(field)和方法(method)，统称为成员（menber).通过var或val 定义的field是指向对象的变量，通过def 定义成员方法。<br>当你实例化一个类，运行时候回分配一些内存来保存变量的数据。例如定义一个ChecksumAccumulator类并给它一个sum的var类型字段。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChecksumAccumulator</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> sum = <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后你实例化了2次：<br>    val acc = new ChecksumAccumulator<br>    val csa = new ChecksumAccumulator</p>
+<p>那么内存中这两个对象看上去可能是这个样子的：</p>
+<p><img src="https://i.postimg.cc/52sdnsf6/image.png" alt="image.png"><br>由于sum这个对象定义在ChecksumAccumulator类中的字段是var，而不是val,可以在后续的代码中进行重新赋值，如：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acc.sum =<span class="number">3</span></span><br></pre></td></tr></table></figure>
+<p>如此一来，内存中的对象看上去就如同：<br><img src="https://i.postimg.cc/9fz3Syf1/image.png" alt="image.png"></p>
+<p>这张图共存有2个sum变量，一个位于acc指向的对象里，一个位于csa指向的对象里。每个实例都有自己的变量（实例变量），这些变量合在一起就构成了对象在内存中的映像。从图中可以看出，改变其中一个实例的sum变量值，另一个并不受影响。<br>由于acc和csa都是val而不是var,你不能做的是将他们重新赋值指向别的对象。例如，下面的代码会报错：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//不能编译，因为acc 是一个val类型</span></span><br><span class="line">acc = <span class="keyword">new</span> <span class="type">ChecksumAccumulator</span></span><br></pre></td></tr></table></figure>
+<p>acc 永远只能指向你在初始化的时候用的ChecksumAccumulator对象，但对象中的字段是可能会改变的。<br><strong>追求健壮性的一个重要手段是确保对象的状态（她的实例变量值）在其整个生命周期都是有效的。</strong> 首先是将字段标记为私有类型（private)来防止外部直接访问字段。因为私有字段只能被定义在同一个类中的方法访问，所有对状态的更新操作的代码，都在类的内部。要将某个字段声明为私有，可以在字段前加上private 这个变量修饰符。如</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChecksumAccumulator</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> sum = <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了ChecksumAccumulator的定义，任何试图通过外部访问sum的sum操作都会失败：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> acc = <span class="keyword">new</span> <span class="type">ChecksumAccumulator</span></span><br><span class="line">acc.sum=<span class="number">5</span> <span class="comment">//不能编译，因为sum 是私有的</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+</blockquote>
+<p>在scala 中，默认的访问修饰符是public，不用显示的声明。换句话说，对于那些在Java中可能会用到”public”的地方，在Scala中都不用显示的声明，声明都不用说了，直接上！公共访问是Scala的默认访问级别。</p>
+<p>由于sum是私有的，唯一能访问sum的代码都定义在类自己里面，因此，ChecksumAccumulator对于别人来说没什么用，除非给它定义一些方法。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChecksumAccumulator</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> sum=<span class="number">0</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span></span>(b:<span class="type">Byte</span>):<span class="type">Unit</span> = &#123;</span><br><span class="line">        sum+=b</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">checksum</span></span>():<span class="type">Int</span> = &#123;</span><br><span class="line">        <span class="keyword">return</span> ~(sum&amp;<span class="number">0xFF</span>)+<span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ChecksumAccumulator现在有2个方法，add 和 checksum ，都是函数定义的基本形式。<br>传递给方法的任何参数都能在方法内部使用，Scala方法参数一个重要特征是他们都是val类型的变量，而不是var。采用val的原因是val更容易推敲，而不需要像var一样进行查证val是不是被重新赋值过。<br>隐私如果你试图在Scala的方法中对入参重新复制，则编译会报错。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChecksumAccumulator</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> sum=<span class="number">0</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span></span>(b:<span class="type">Byte</span>):<span class="type">Unit</span> = &#123;</span><br><span class="line">        b=<span class="number">1</span></span><br><span class="line">        sum+=b</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">checksum</span></span>():<span class="type">Int</span> = &#123;</span><br><span class="line">        <span class="keyword">return</span> ~(sum&amp;<span class="number">0xFF</span>)+<span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>报错信息： <code>error: reassignment to val</code></p>
+<p>在Scala方法中，在没有任何显示的return语句时，Scala方法返回的该方法最后一个表达式的值。所以checksum方法最后一个return是多余的。<br>函数式编程风格推荐<strong>避免任何显示的return语句，尤其是多个return语句</strong>。尽量将每个方法当作是最终交出某个值的表达式。这样的哲学思想鼓励你编写短小的方法，将一个复杂方法分解成成小的方法，每个方法专注本身功能。另外一方面，设计的选择取决于上下文，取决于你的需求，如果你觉得你是非常必须的，Scala是允许你编写多个显示的return方法。</p>
+<p>当一个方法只会计算一个返回结果的表达式时，可以不用写花括号。如果这个表达式很短也可以写在一行。<br>我们还可以选择省略返回类型，Scala会自动帮助我们做类型推断。</p>
+<p>做出这些修改后，ChecksumAccumulator类看上去是这个样子的。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ChecksumAccumulator</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> sum=<span class="number">0</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span></span>(b:<span class="type">Byte</span>) = sum+=b</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">checksum</span></span>() =  ~(sum&amp;<span class="number">0xFF</span>)+<span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="关于分号"><a href="#关于分号" class="headerlink" title="关于分号"></a>关于分号</h2><p>在Scala 程序中，每条语句最后的分号通常是可选的。你想要的话可以键入一个，但如果当前行只有这条语句，分号并不是必需的。另一方面，如果想<br>在同一行包含多条语句，那么分号就有必要了：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> s = <span class="string">"hello"</span> ; println(s)</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="单例对象"><a href="#单例对象" class="headerlink" title="单例对象"></a>单例对象</h2><p>Scala不允许有静态（static) 成员。对于此类使用场景，Scala提供了单例对象（singleton object）。单例对象的定义看上去和类的定义很想。只不过class关键词被换成object关键词。<br>当单例对象跟某个类共同使用一个名字时候，它被称为该类的伴生对象（companion object）。<strong>必须在同一个文件中定义类和类的伴生对象</strong>。同时类又叫做这个单例对象的伴生类（companion class）。类和它的伴生对象可以互相访问对方的私有变量。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> scala.collection.mutable</span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ChecksumAccumulator</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> cache = mutable.<span class="type">Map</span>.empty[<span class="type">String</span>,<span class="type">Int</span>]</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculate</span></span>(s:<span class="type">String</span>):<span class="type">Int</span> = </span><br><span class="line">        <span class="keyword">if</span> (cache.contains(s)) cache(s)</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">val</span> acc = <span class="keyword">new</span> <span class="type">ChecksumAccumulator</span></span><br><span class="line">            <span class="keyword">for</span> (c &lt;-s) acc.add(c.toByte)</span><br><span class="line">            <span class="keyword">val</span> cs = acc.checksum()</span><br><span class="line">            cache+=(s-&gt;cs)</span><br><span class="line">            cs</span><br><span class="line">            &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在上面代码中，else后面中，定义了一个ChecksumAccumulator类型的实例acc，当只有ChecksumAccumulator单例对象定义时候，并不能定义一个定义了一个ChecksumAccumulator类型的实例变量。确切的说类型为ChecksumAccumulator的实例变量，只能由单例对象的伴生类来定义。</p>
+<p>类和单例对象的一个区别是单例对象不能接受参数，而类可以，由于你没法用new 来实例化单例对象，也就没法用任何手段来向它传入参数。单例对象只会在第一次访问的时候才会被初始化。</p>
+<p>没有同名伴生类的单例对象称为孤立对象（standalone object)。孤立对象有很多种用途，包括将工具方法归集在一起，或者定义Scala应用程序的入口等。</p>
+<h2 id="App特质"><a href="#App特质" class="headerlink" title="App特质"></a>App特质</h2><p>Scala 提供了一个特质scala.App ，帮助你节省敲键盘的动作。要用这个特质，首先要在你的单例对象后加上 <code>extend App</code> 。 然后，并不是直接编写main方法，而是将你打算放在main方法的代码直接写在单例对象的花括号中。可以通过名为args 的字符串数组来访问命令行参数。就这么简单，可以像任何其他应用程序一样来编译和运行它。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="type">ChecksumAccumulator</span>.calculate</span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">FallwinterSpringSummer</span> <span class="keyword">extends</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (season &lt;- <span class="type">List</span>(<span class="string">"fall"</span>,<span class="string">"winter"</span>,<span class="string">"spring"</span>))</span><br><span class="line">        println( season+<span class="string">":"</span>+calculate(season))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/Scala/">Scala</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2018/09/21/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AFPyTorch/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">为什么是PyTorch</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2018/03/08/hidden-post/">
+        <span class="next-text nav-default">This is a hidden post.</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

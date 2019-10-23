@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="什么是卷积"/><meta name="keywords" content="cv, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/05/28/什么是卷积/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>什么是卷积 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">什么是卷积
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-05-28
+        </span><span class="post-category">
+            <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是卷积"><span class="toc-text">什么是卷积</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#卷积的数学定义"><span class="toc-text">卷积的数学定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图解卷积"><span class="toc-text">图解卷积</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#卷积核"><span class="toc-text">卷积核</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#卷积层的其他参数"><span class="toc-text">卷积层的其他参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#池化层"><span class="toc-text">池化层</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="什么是卷积"><a href="#什么是卷积" class="headerlink" title="什么是卷积"></a>什么是卷积</h2><p>在泛函分析中，卷积（convolution)是一种函数的定义。它是通过两个函数$f(x)$和$g(x)$生成第三个函数的一种数学算子，表征<strong>函数$f(x)$和$g(x)$经过<code>翻转</code>和<code>平移</code>的重叠部分的面积</strong>。</p>
+<h2 id="卷积的数学定义"><a href="#卷积的数学定义" class="headerlink" title="卷积的数学定义"></a>卷积的数学定义</h2><ul>
+<li><p>离散型</p>
+<blockquote>
+<p>其中星号<em>表示卷积。当时序x=0时，序列$g(-t)$是$g(t)$的时序$t$取反的结果；时序取反使得$g(t)$以纵轴为中心翻转180度，所以这种相乘后求和的计算法称为卷积和，简称卷积。另外，x是使$g(-t)$*</em><code>位移的量</code>**，不同的$x$对应不同的卷积结果。深度学习卷积神经网络中的卷积就是这种类型，两个变量在某范围内相乘后求和的结果。<br>$$y(x)=f(x) * h(x) =\sum_{t=-\infty}^{\infty} f(t) g(x-t)$$</p>
+</blockquote>
+</li>
+<li><p>连续型</p>
+<blockquote>
+<p>其中$t$是积分变量，积分也是求和(<strong>离散型</strong>)，x是使函数g(-t)位移的量，星号$<em>$表示卷积。<br>$$h(x)=f(x)</em>g(x)=\int_{-\infty}^{+\infty} f(t) g(x-t) \mathrm{d} t$$</p>
+</blockquote>
+</li>
+</ul>
+<p>那么我们看到这个积分公式里面$f(t)$、$g(t)$是什么呢？其实是这样，$f(t)$不动，$g(t)$相当于函数$g(t)$沿着$y$轴$(t=0)$做了一次翻转。$g(x-t)$表示$g(-t)$的沿着$t$轴向右便宜了$+x$个单位。<br>明白这个变换后可知，这是两个函数，一个固定函数$f(t)$，一个是滑动函数$g(t)$,求他们相乘之后围起来的面积。</p>
+<h2 id="图解卷积"><a href="#图解卷积" class="headerlink" title="图解卷积"></a>图解卷积</h2><p><img src="http://static.zybuluo.com/zenzenzen/mi7tbd7m1t4rt8maun1fpm7p/5.png" alt="5.png-23.2kB"><br>$f(t)$就是一个三角，在第二象限是一条过$（-1，0）$和$（0，1）$点的线段，在第一象限是一条过（0，1）和（1，0）点的线段。<br>函数$g(t)$是一个正方的脉冲波，t在[1，2]上有定义，在这段区间里$g(t)=t$。函数$g(x-t)$是左侧的这个做过翻转的图形，图示中还分别有$x=-2$，$x=-1$，$x=0$，$x=1$，$x=2$时的图像。<br><img src="http://static.zybuluo.com/zenzenzen/puojq72suz31i2bkrc4lccm5/11.png" alt="11.png-26.6kB"><br>我们观察到，在这个不定积分完毕后，会形成两个函数叠加的部分，其中$x$是一个变量。假设$x$为0，或者我们当$x$压根不存在，那么就是$f(t)$和$g(-t)$这两个函数相乘后和$y=0$（t轴）围成的面积。当x出现后，x是帮着$g(x-t)$图像左右平移的，刚刚我们也看到这个图像的变化过程了，那么会变成什么样？简单说，这个函数$h(x)$的值就是求一个面积和$x$的关系，而这个所说的面积就是函数$f(t)$与$g(x-t)$卷积后的曲线和y=0（t轴）围成的面积，其中自变量是$x$。在随着x变化的移动过程中，由于$g(x-t)$移动产生的$h(x)$的对应变化就是整个卷积公式的意义了——一个移动中用$x$进行取样的过程，或者说<strong>特征提取</strong>。</p>
+<h2 id="卷积核"><a href="#卷积核" class="headerlink" title="卷积核"></a>卷积核</h2><p>当我们能够理解卷积的含义之后，那理解卷积核就会简单多了，因为我们只要理解它是在滑动中去<strong>提取特征</strong>就足够了。<br>我们先看卷积核的表达方式，它的表达式为<br>$$f（x）=wx+b$$<br>可能有人会问是不是写错了，这不是卷积核，这就是一个普通的神经元的线性处理的部分。其实你这么看倒是也不能算错，因为从计算逻辑的角度来看还真差不多。<br><img src="http://static.zybuluo.com/zenzenzen/853045ol10xbubddp528nao2/5555.png" alt="5555.png-1387.1kB"><br>我们先想象这里有一张图片，图片有5×5一共25个像素点，每个像素点只有1和0两种取值。那么提取这样的一种图的特征，我们可以先随便设计一个卷积核来看看到底会产生什么结果，我们设计一个特别简单的卷积核。<br>$$w=[1，1，1，1，1，1，1，1，1]，b=[0]$$<br>$w$由9个1构成，在这个场景里，我们指图中黄色部分的这个$3×3$的小方框，从左到右从上到下的这9个点作为$x$向量，挨个与$wv相乘完成内积操作，并与$b$相加。这个过程就是这样了：<br>$$f(x)=1×1+1×1+1×1+1×0+1×1+1×1+1×0+1×0+1×1+0=6$$</p>
+<p>那么左上角的这个黄色小方框就会输出一个6，我们把6单独存在一个存储空间里，这个存储空间就叫做这个卷积层的<strong>Feature Map</strong>，也就是图中所示的<strong>Convoluted-Feature</strong>这个部分。我们看在这样一个操作下，9个点的信息被压缩成了一个点，当然这肯定是有损压缩了，还原肯定是还原不回去了(<strong>卷积不可逆</strong>)。不过确实在这个过程中有这样一个信息抽象的过程，大家请注意，这个抽象过程就是<strong>特征提取</strong>。</p>
+<p>我们把这个小黄方框的操作继续从左到右，从上到下每次移动一个方格，就相当于前面我们说的$f(t)和$g(x-t)两个函数通过$x$变化来滑动一样做这样一个卷积操作，那么右侧的<strong>Feature-Map</strong>的每个点的值也都能对应产生结果了。根据我们设计的卷积核的$w$和$b$的值，剩下的8个输出值应该分别是：7、6、4、7、7、4、6、6。这样一来25个点的信息量就被压缩成了9个点，完成了<strong>特征提取</strong>和<strong>压缩</strong>两个功能。</p>
+<p>在卷积核的$f(x)=wx+b$输出后还可能会跟着一个激励函数而且也一般会定义一个激励函数跟随其后，现在的CNN网络中的激励函数非常喜欢用ReLU。不过你也会发现在实际工作中，可能会用别的激励函数跟在卷积核后面进行工作，或者不用激励函数。理由通常都是为了在一些特殊的场景中有更好的表现，共性我还没总结出来，不过ReLU作为激励函数的场合应该说是最常见的。<br>卷积核中的$w$、$b$需要通过训练来得到，是模型中非常重要的参数。</p>
+<h2 id="卷积层的其他参数"><a href="#卷积层的其他参数" class="headerlink" title="卷积层的其他参数"></a>卷积层的其他参数</h2><p>在卷积核对上一层输入的向量进行扫描的时候，还有几个别的参数需要注意，一个是<strong>Padding</strong>（填充），一个是<strong>Striding</strong>（步幅）。<br>先说Padding，Padding是指用多少个像素单位来填充输入图像（向量）的边界。就像图上所画，在这四周的区域里都进行Padding，通常都是填充0值。当然一般不会有像我们图上画的这么大比例的Padding了，在800×600的图过卷积层的时候，能在四周各Padding上5到10个单位就不少了。<br><img src="http://static.zybuluo.com/zenzenzen/3mvkur6mpy9n3uk2gathh21v/555.png" alt="555.png-132kB"><br>Padding的用途大概可以理解为两种目的。</p>
+<ul>
+<li><strong>目的1</strong>： 保持边界信息。因为如果不加Padding的话，最边缘的像素点信息其实仅仅被卷积核扫描了一遍，而图像中间的像素点信息会被扫描多遍，在一定程度上等于降低了边界上信息的参考程度。Padding后就可以在一定程度上解决这个问题。在实际处理的过程中肯定是Padding了一些0值以后，再从Padding后的新边界开始扫描。<ul>
+<li><strong>目的2</strong>： 如果输入的图片尺寸有差异，可以通过Padding来进行补齐，使得输入的尺寸一致，以免频繁调整卷积核和其他层的工作模式。</li>
+</ul>
+</li>
+</ul>
+<p>Stride就是步幅，在卷积层工作的时候，Stride可以理解为每次滑动的单位。比如刚刚这个例子，我们用的就是Stride=1的情况——每次只滑动一个单位。在实际工作中Stride=1的使用场景很多，因为它对于采用的细密程度保证得最好。当然Stride也可以取别的值，比如Stride=3，那么扫描的时候就不是每次移动1个像素，而是每次移动3个像素了。这种方式直观上想一想就会觉得比较“粗糙”，因为跳过的像素行列的信息明显扫描的次数降低了。不过好处也显而易见，就是因为处理的次数变少了，所以卷积层在扫描的时候工作会变快，这可能是唯一的好处。在设计网络的时候，Stride取多少合适需要经过测试，先设置Stride=1，如果工作状况已经很理想了，而希望通过加大Stride来获得一些性能的提升或者存储量的减小，那么可以逐步尝试调整为Stride=2或其他值。一切都以实测结果为准，到目前为止这个值究竟应该设定为多少还没有一个确切的有效的判断方法。</p>
+<h2 id="池化层"><a href="#池化层" class="headerlink" title="池化层"></a>池化层</h2><p><strong>池化层（Pooling Layer，或称池层）</strong>是在一些CNN网络中喜欢设计的一层处理层。池化层的作用实际上对Feature Map所做的数据处理又进行了一次所谓的池化处理。我们具体来看看这个池化处理都做了些什么吧。<br>常见的池化层处理有两种方式：一种叫<strong>Max Pooing</strong>，一种叫Mean Pooling（也叫Average Pooling），顾名思义，一个做了最大化，一个做了<strong>平均化</strong>。除此之外还有Chunk-Max Pooling、Stochastic Pooling等其他一些池化手段。<br><img src="http://static.zybuluo.com/zenzenzen/mk1ed3yo9vpr8r0fkgtgqbhe/55.png" alt="55.png-26.1kB"><br><strong>Max Pooling</strong>就是在前面输出过来的数据上做一个取最大值的处理，比如以Stride=2的2×2为Max Pooling Filter（滤波器，我们就理解为跟卷积类似的特征处理就好了）之后，左上角就出现了这样的变化。临近的4个点取一个最大值成为Max Pooling层中的储存值。<br><img src="http://static.zybuluo.com/zenzenzen/h9pos4w8fdk8xh0y6h59y8ej/111.png" alt="111.png-27.6kB"><br><strong>Mean Pooling</strong>就是在前面输出过来的数据上做一个取平均值的处理，比如以Stride=2的2×2为Mean Pooling Filter之后，左上角就出现了这样的变化。临近的4个点取平均值输出到Mean Pooling中保存起来，如图所示。</p>
+<p>一般来说，池化层被认为有这样几个功能。</p>
+<ul>
+<li>它又进行了一次特征提取，所以肯定是能够减小下一层数据的处理量的。</li>
+<li>由于这个特征的提取，能够有更大的可能性进一步获取更为抽象的信息，从而防止过拟合，或者说提高一定的泛化性。</li>
+<li>由于这种抽象性，所以能够对输入的微小变化产生更大的容忍，也就是保持其不变性。这里的容忍包括图形的少量平移、旋转以及缩放等变化。<br>池化层在CNN网络中不是一个必需的组件，一些新的CNN网络在设计的时候也没有池化层出现。</li>
+</ul>
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbMjAzMTI1NDk4OF19
+-->
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/06/04/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C@CV/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">卷积神经网络如何工作@CV</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/05/28/%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF@CV/">
+        <span class="next-text nav-default">什么是卷积@CV</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

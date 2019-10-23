@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="RNN Pytorch源码"/><meta name="keywords" content="cv, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/07/17/RNN pytorch源码/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>RNN Pytorch源码 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">RNN Pytorch源码
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-07-17
+        </span><span class="post-category">
+            <a href="/categories/cv/">cv</a>
+            <a href="/categories/cv/pytorch/">pytorch</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RNN-Pytorch源码"><span class="toc-text">RNN Pytorch源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Time-series-representation-时间序列表示方法"><span class="toc-text">Time series representation (时间序列表示方法)</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="RNN-Pytorch源码"><a href="#RNN-Pytorch源码" class="headerlink" title="RNN Pytorch源码"></a>RNN Pytorch源码</h2><p>Applies a multi-layer Elman RNN with :math:<strong>tanh</strong> or <strong>ReLU</strong> non-linearity to an  input sequence.<br>For each element in the input sequence, each layer computes the following  function:  </p>
+<p> $$h_t = \text{tanh}(W_{ih} x_t + b_{ih} + W_{hh} h_{(t-1)} + b_{hh})  $$</p>
+<p>where   $h_t$ is the hidden state at time <code>t</code>, $x_t$ is  the input at time <code>t</code>, and $h_{(t-1)}$ is the hidden state of the  previous layer at time $t-1$ or the initial hidden state at time <code>0</code>.  If  attr nonlinearity` is <strong>relu</strong>, then  ReLU  is used instead of <strong>tanh</strong>.</p>
+<ul>
+<li><strong>Inputs</strong>: $input$, $h_0$<blockquote>
+<p>$input$:</p>
+<blockquote>
+<p><strong>input</strong> of shape <code>(seq_len, batch, input_size)</code>, containing the features  of the input sequence. The input can also be a packed variable length sequence. See :func:<code>torch.nn.utils.rnn.pack_padded_sequence</code> or :func:<code>torch.nn.utils.rnn.pack_sequence</code> for details.</p>
+</blockquote>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>$h_0$:</p>
+<blockquote>
+<p><strong>$h_0$</strong> of shape <code>(num_layers * num_directions, batch, hidden_size)</code>: tensor<br> containing the initial hidden state for each element in the batch. Defaults to zero if not provided. If the RNN is bidirectional, num_directions should be 2, else it should be 1.</p>
+</blockquote>
+</blockquote>
+<ul>
+<li><strong>Outputs</strong>: $output$, $h_n$<blockquote>
+<p>$output$</p>
+<blockquote>
+<ul>
+<li><strong>output</strong> of shape <code>(seq_len, batch, num_directions * hidden_size)</code>, containing the output features ($h_t$) from the last layer of the RNN, for each  $t$.  If a class <code>torch.nn.utils.rnn.PackedSequence</code> has been given as the input, the output will also be a packed sequence.  For the unpacked case, the directions can be separated using <code>output.view(seq_len, batch, num_directions, hidden_size)</code>, with forward and backward being direction <code>0</code> and <code>1</code> respectively. Similarly, the directions can be separated in the packed case. </li>
+</ul>
+</blockquote>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>$h_n$</p>
+<blockquote>
+<p><strong>$h_n$</strong> of shape <code>(num_layers * num_directions, batch, hidden_size)</code> containing the hidden state for $t = seq_{len}$.  Like <em>output</em>, the layers can be separated using <code>h_n.view(num_layers, num_directions, batch, hidden_size)</code>.</p>
+</blockquote>
+</blockquote>
+<ul>
+<li><p>note </p>
+<blockquote>
+<p>All the weights and biases are initialized from : $\mathcal{U}(-\sqrt{k}, \sqrt{k})$<br>where $k = \frac{1}{\text{hidden_size}}$</p>
+</blockquote>
+</li>
+<li><dl><dt>batch_first</dt><dd>If <code>True</code>, then the input and output tensors are provided<br>as <code>(batch, seq, feature_size)</code>. Default: <code>False</code></dd></dl></li>
+<li><p>Examples<br>input_size=10, hidden_size =20, num_layers=2</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rnn = nn.RNN(<span class="number">10</span>, <span class="number">20</span>, <span class="number">2</span>) </span><br><span class="line">input = torch.randn(<span class="number">5</span>, <span class="number">3</span>, <span class="number">10</span>) </span><br><span class="line">h0 = torch.randn(<span class="number">2</span>, <span class="number">3</span>, <span class="number">20</span>) </span><br><span class="line">output, hn = rnn(input, h0)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="Time-series-representation-时间序列表示方法"><a href="#Time-series-representation-时间序列表示方法" class="headerlink" title="Time series representation (时间序列表示方法)"></a>Time series representation (时间序列表示方法)</h2><p><img src="https://i.postimg.cc/JhF7wn2Z/07b829a0f5a86d43ec9a41579bfd87e.png" alt="时间序列"></p>
+<ul>
+<li>(seq_len, batch, input_size)</li>
+<li>(batch, seq_len, input_size)  # batch first</li>
+</ul>
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTE3NjgxODYwNjIsLTg2NDcwOTgyMSwtMT
+UyNTk0NzMzNCwtNDk1MDg2NiwxMTU4NDYyNjMwLDEzNjU1MDI3
+NDAsMTY3NDUzNDE2MSwtNjQ5MzIzMDIxLDUzNDg2NDgyNiwtMT
+UzNjE0OTI5NiwtMTkyMTkxNDMwNF19
+-->
+
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/07/18/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">单例模式</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/07/11/ResNet%E5%AE%9E%E6%88%98CIFAR10/">
+        <span class="next-text nav-default">ResNet实战CIFAR10</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

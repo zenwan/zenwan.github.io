@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="RNN 原理"/><meta name="keywords" content="cv, zen" /><link rel="alternate" href="/default" title="zen"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zenwan.github.io/2019/07/18/RNN 原理/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>RNN 原理 - zen</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zen</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zen</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">RNN 原理
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-07-18
+        </span><span class="post-category">
+            <a href="/categories/cv/">cv</a>
+            <a href="/categories/cv/pytorch/">pytorch</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#naive-version"><span class="toc-text">naive version</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#这样做法存在的问题"><span class="toc-text">这样做法存在的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Weight-Sharing"><span class="toc-text">Weight Sharing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Consisten-memory"><span class="toc-text">Consisten memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#How-to-train"><span class="toc-text">How to train</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="naive-version"><a href="#naive-version" class="headerlink" title="naive version"></a>naive version</h2><p>以Sentiment Analysis（情感分析）为例</p>
+<p><img src="https://i.postimg.cc/kG5vv5Pp/image.png" alt="情感分析"><br>对每个单词进行<code>word embedding</code>, 假设embedding dim=100。<br>则 <code>i hate this boring movie</code> 就可以表示为$[ 5,100]$的矩阵。<br>最naive 的做法就说对每个单词（100维的tensor） 用一个线性层Linear layer:  $x@w_i+b_i$ 来进行特征抽取（降维）。则每个线性层输出维度为 $[2]$, 合并后的维度为$[5,2]$，最后再接个线性单元做二分类（pos/neg)。问题基本解决。</p>
+<h2 id="这样做法存在的问题"><a href="#这样做法存在的问题" class="headerlink" title="这样做法存在的问题"></a>这样做法存在的问题</h2><ul>
+<li><p>long sentence</p>
+</li>
+<li><ul>
+<li>100+ words</li>
+</ul>
+</li>
+<li><ul>
+<li>too much paramers $[w,b]$</li>
+</ul>
+</li>
+<li><p>no context information</p>
+</li>
+<li><ul>
+<li>consistent tensor<br>没有上下文信息是非常不智能的，比如<code>不喜欢</code>分词后为<code>不</code>，<code>喜欢</code>，<code>喜欢</code>这个positve 类型的词前接了一个否定词<code>不</code> ,则语义立即反转。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Weight-Sharing"><a href="#Weight-Sharing" class="headerlink" title="Weight Sharing"></a>Weight Sharing</h2><p>我们希望<strong>权值共享</strong>，以求<strong>减少网络参数量</strong>，这样就可以处理更长的句子。那怎么做呢？我们可以对所有的 input 用一个$[w,b]$来处理。如下图所示，本来5个$w_1,…,w_5$、$b_1,…,b_5$减少为1个$w$,$b$。<br>意思就是$x@w+b$不再是抽取特定位置单词特征的线性层，而是可以对所有输入的单词进行特征抽取。<br><img src="https://i.postimg.cc/wvtm71Kq/image.png" alt="enter image description here"></p>
+<h2 id="Consisten-memory"><a href="#Consisten-memory" class="headerlink" title="Consisten memory"></a>Consisten memory</h2><p>怎么来记忆上下文语境信息呢？看到<code>开心</code>应该也要看到<code>开心</code>这个词的前面还有个<code>不</code>，不能离散的对每个词进行处理。所以这里我们必须需要这样的一个记忆单元，他们持续贯穿你的整个语境。<br><img src="https://i.postimg.cc/6QP7JB8D/image.png" alt="enter image description here"></p>
+<ul>
+<li><p>$h_0$<br>初始 记忆单元 memory</p>
+</li>
+<li><p>$x@w_{xh}+h_i@w_{hh}$<br>$w_{xh}$对当前 input 进行特征提取，可以理解为考虑当前语境信息。<br>$h_i@w_{hh}$，对上一记忆单元（初始记忆单元）进行特征提取，可以立即为考虑前面的语境信息。</p>
+</li>
+<li><p>folded model：<br><img src="https://i.postimg.cc/TYVVX5qg/image.png" alt="folded model"></p>
+</li>
+<li><p>unfolded model</p>
+</li>
+<li><p><img src="https://i.postimg.cc/qvYMbjhL/image.png" alt="unfolded model"><br>模型最终输出依赖最后一个$h_t$还是综合$h_1$,$h_2$,…,$h_t$，你可以自由组合决定。<br><img src="https://i.postimg.cc/x8k6RfWg/image.png" alt="enter image description here"></p>
+<blockquote>
+<p>note: $tanh取值范围为$-1$到$1$ ,$y_t = W_{hy}h_t$  对当前时刻的 memory 进行一个线性变化输出。</p>
+</blockquote>
+<h2 id="How-to-train"><a href="#How-to-train" class="headerlink" title="How to train"></a>How to train</h2></li>
+</ul>
+<p>$$h_t = tanh(W_{hx}x_t+W_{hh}h_{t-1})$$</p>
+<p>$$y_t = W_Oh_t$$</p>
+<p>$$\frac{\partial E_t}{\partial W_{hh}} =\frac{\partial E_t}{\partial W_{hh}^0}+<br>\frac{\partial E_t}{\partial W_{hh}^1} +…+\frac{\partial E_t}{\partial W_{hh}^t} $$</p>
+<p>$$ =\sum^{t}<em>{i=0} \frac{\partial E_t}{\partial y_t}\frac{\partial y_t}{\partial h_t}\frac{\partial h_t}{\partial h_i}\frac{\partial h_i}{\partial W</em>{hh}}$$</p>
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbODczMTQyNjgsMTY2NTg3OTEwMiw2ODg5MD
+kyNDEsLTE2MzIwOTg2MTgsMjAyOTA2NDM0MSwtMTcwODk1MDQz
+MSwyMjM1NDcxNjMsMjA4NzY0OTk1MSwtMTgwMDgzMzMzNSwtMT
+AwNjQyOTIyMSwxMjk2MjA3MTE4XX0=
+-->
+
+      </div>
+      
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/cv/">cv</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/07/22/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E5%B8%B8%E8%A7%81%E6%A0%87%E7%AD%BE%E8%AF%B4%E6%98%8E/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">自然语言处理中常见标签说明@NLP</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/07/18/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
+        <span class="next-text nav-default">单例模式</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zenwan021@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/zenwan" class="iconfont icon-github" title="github"></a>
+        <a href="https://www.zhihu.com/people/zenlp" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">nanking</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>
